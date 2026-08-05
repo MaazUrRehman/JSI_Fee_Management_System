@@ -40,7 +40,7 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
 
   const [registrationFee, setRegistrationFee] = useState(initialReg);
   const [monthlyFee, setMonthlyFee] = useState(receipt?.fee_amount || student.monthly_fee);
-  
+
   const calculateLateCharges = () => {
     if (receipt) return receipt.late_charges;
     const day = new Date().getDate();
@@ -48,7 +48,7 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
     if (day >= 11 && day <= 20) return 100;
     return 200;
   };
-  
+
   const [lateFee, setLateFee] = useState(calculateLateCharges());
   const [stationaryCharges, setStationaryCharges] = useState(initialStat);
   const [previousBalance, setPreviousBalance] = useState(receipt?.previous_balance || 0);
@@ -62,66 +62,124 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
   const isPaid = !!receipt;
 
   // Auto logic for Previous Balance
-  useEffect(() => {
-    if (!receipt) {
-      const fetchPrevBalance = async () => {
-        try {
-          const rawReceipts = await getStudentReceipts(student.id);
-          const normalizedReceipts = (rawReceipts as Receipt[]).filter((item) => {
-            const status = String(item.status ?? "").trim().toLowerCase();
-            return status === "paid";
-          });
+  // useEffect(() => {
+  //   if (!receipt) {
+  //     const fetchPrevBalance = async () => {
+  //       try {
+  //         const rawReceipts = await getStudentReceipts(student.id);
+  //         const normalizedReceipts = (rawReceipts as Receipt[]).filter((item) => {
+  //           const status = String(item.status ?? "").trim().toLowerCase();
+  //           return status === "paid";
+  //         });
 
-          const targetYear = Number(selectedYear || new Date().getFullYear());
-          const targetMonth = month;
+  //         const targetYear = Number(selectedYear || new Date().getFullYear());
+  //         const targetMonth = month;
 
-          const previousReceipts = normalizedReceipts.filter((item) => {
-            const itemYear = Number(item.year);
-            const itemMonth = Number(item.month);
-            if (Number.isNaN(itemYear)) return false;
+  //         // const previousReceipts = normalizedReceipts.filter((item) => {
+  //         //   const itemYear = Number(item.year);
+  //         //   const itemMonth = Number(item.month);
+  //         //   if (Number.isNaN(itemYear)) return false;
 
-            if (itemYear < targetYear) return true;
-            if (itemYear === targetYear && itemMonth < targetMonth) return true;
-            return false;
-          });
+  //         //   if (itemYear < targetYear) return true;
+  //         //   if (itemYear === targetYear && itemMonth < targetMonth) return true;
+  //         //   return false;
+  //         // });
 
-          const sorted = previousReceipts.sort((a, b) => {
-            if (Number(b.year) !== Number(a.year)) {
-              return Number(b.year) - Number(a.year);
-            }
 
-            const aMonth = Number(a.month);
-            const bMonth = Number(b.month);
-            if (Number.isNaN(aMonth) || Number.isNaN(bMonth)) {
-              return 0;
-            }
-            return bMonth - aMonth;
-          });
+  //         const previousReceipts = normalizedReceipts.filter((item) => {
+  //           const itemYear = Number(item.year);
+  //           if (Number.isNaN(itemYear)) return false;
 
-          const latest = sorted[0];
-          if (latest && latest.remaining_amount !== undefined && latest.remaining_amount !== null) {
-            setPreviousBalance(Number(latest.remaining_amount));
-          } else {
-            setPreviousBalance(0);
-          }
-        } catch (err) {
-          console.error("Failed to auto-fetch previous balance:", err);
+  //           // Month ko number mein convert karo
+  //           let itemMonth = Number(item.month);
+  //           if (isNaN(itemMonth)) {
+  //             // Agar text hai to month name se number find karo
+  //             const monthIndex = MONTH_NAMES.findIndex(m => m.toLowerCase() === String(item.month).toLowerCase());
+  //             itemMonth = monthIndex + 1; // 1-12
+  //           }
+
+  //           if (itemYear < targetYear) return true;
+  //           if (itemYear === targetYear && itemMonth < targetMonth) return true;
+  //           return false;
+  //         });
+
+  //         const sorted = previousReceipts.sort((a, b) => {
+  //           if (Number(b.year) !== Number(a.year)) {
+  //             return Number(b.year) - Number(a.year);
+  //           }
+
+  //           const aMonth = Number(a.month);
+  //           const bMonth = Number(b.month);
+  //           if (Number.isNaN(aMonth) || Number.isNaN(bMonth)) {
+  //             return 0;
+  //           }
+  //           return bMonth - aMonth;
+  //         });
+
+  //         const latest = sorted[0];
+  //         if (latest && latest.remaining_amount !== undefined && latest.remaining_amount !== null) {
+  //           setPreviousBalance(Number(latest.remaining_amount));
+  //         } else {
+  //           setPreviousBalance(0);
+  //         }
+  //       } catch (err) {
+  //         console.error("Failed to auto-fetch previous balance:", err);
+  //         setPreviousBalance(0);
+  //       }
+  //     };
+  //     fetchPrevBalance();
+  //   }
+  // }, [student.id, receipt, selectedYear, month]);
+
+
+
+  // Auto logic for Previous Balance - Sirf latest receipt se
+useEffect(() => {
+  if (!receipt) {
+    const fetchPrevBalance = async () => {
+      try {
+        const rawReceipts = await getStudentReceipts(student.id);
+        const paidReceipts = rawReceipts.filter((item) => {
+          const status = String(item.status ?? "").trim().toLowerCase();
+          return status === "paid";
+        });
+
+        if (paidReceipts.length === 0) {
+          setPreviousBalance(0);
+          return;
+        }
+
+        // Sab se latest receipt find karo (created_at ke hisaab se)
+        const sorted = paidReceipts.sort((a, b) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+
+        const latest = sorted[0];
+        
+        if (latest && latest.remaining_amount !== undefined && latest.remaining_amount !== null) {
+          setPreviousBalance(Number(latest.remaining_amount));
+        } else {
           setPreviousBalance(0);
         }
-      };
-      fetchPrevBalance();
-    }
-  }, [student.id, receipt, selectedYear, month]);
+      } catch (err) {
+        console.error("Failed to auto-fetch previous balance:", err);
+        setPreviousBalance(0);
+      }
+    };
+    fetchPrevBalance();
+  }
+}, [student.id, receipt]);
 
+  
   // Total Amount Calculation
   const totalAmount = Math.max(0, registrationFee + monthlyFee + lateFee + stationaryCharges + previousBalance - discount);
-  
+
   // Paid Amount input state
-  const initialPaidAmount = receipt 
-    ? (receipt.total_amount - (receipt.remaining_amount || 0)) 
+  const initialPaidAmount = receipt
+    ? (receipt.total_amount - (receipt.remaining_amount || 0))
     : totalAmount;
   const [paidAmountInput, setPaidAmountInput] = useState<number | null>(receipt ? initialPaidAmount : null);
-  
+
   const actualPaidAmount = paidAmountInput !== null ? paidAmountInput : totalAmount;
   const remainingAmount = Math.max(0, totalAmount - actualPaidAmount);
 
@@ -140,25 +198,25 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
       }
 
       await createReceipt({
-          student_id: student.id,
-          month: monthName, 
-          year: Number(selectedYear),
-          fee_amount: monthlyFee,
-          late_charges: lateFee,
-          total_amount: totalAmount,
-          paid_date: new Date().toISOString().split('T')[0],
-          payment_method: paymentMethod,
-          receipt_no: `RCP-${Date.now()}`,
-          status: "Paid",
-          additional_charges: chargesArr,
-          additional_charges_details: detailsArr,
-          discounts: [{ amount: discount, details: "Discount" }],
-          total_discount: discount,
-          previous_balance: previousBalance,
-          remaining_amount: remainingAmount,
-          due_date: dueDate,
-          registration_fee: registrationFee,
-        } as any);
+        student_id: student.id,
+        month: monthName,
+        year: Number(selectedYear),
+        fee_amount: monthlyFee,
+        late_charges: lateFee,
+        total_amount: totalAmount,
+        paid_date: new Date().toISOString().split('T')[0],
+        payment_method: paymentMethod,
+        receipt_no: `RCP-${Date.now()}`,
+        status: "Paid",
+        additional_charges: chargesArr,
+        additional_charges_details: detailsArr,
+        discounts: [{ amount: discount, details: "Discount" }],
+        total_discount: discount,
+        previous_balance: previousBalance,
+        remaining_amount: remainingAmount,
+        due_date: dueDate,
+        registration_fee: registrationFee,
+      } as any);
       toast.success("Fee paid successfully");
       onClose();
     } catch (error) {
@@ -200,22 +258,22 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
             </DialogTitle>
           </div>
         </DialogHeader>
-        
+
         <div className="space-y-4 pt-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Student Name</Label>
-              <Input 
-                value={student.student_name} 
-                readOnly 
+              <Input
+                value={student.student_name}
+                readOnly
                 className="border-[#0FB3B7]/20 bg-[#0FB3B7]/5 text-[#0FB3B7]/90"
               />
             </div>
             <div>
               <Label className="text-[#0FB3B7] font-medium">Student ID</Label>
-              <Input 
-                value={student.student_id} 
-                readOnly 
+              <Input
+                value={student.student_id}
+                readOnly
                 className="border-[#0FB3B7]/20 bg-[#0FB3B7]/5 text-[#0FB3B7]/90"
               />
             </div>
@@ -224,18 +282,18 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Month</Label>
-              <Input 
-                value={monthName} 
-                readOnly 
+              <Input
+                value={monthName}
+                readOnly
                 className="border-[#0FB3B7]/20 bg-[#0FB3B7]/5 text-[#0FB3B7]/90"
               />
             </div>
             <div>
               <Label className="text-[#0FB3B7] font-medium">Year</Label>
-              <Input 
-                type="number" 
-                value={selectedYear} 
-                onChange={(e) => setSelectedYear(e.target.value)} 
+              <Input
+                type="number"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
@@ -244,10 +302,10 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
 
           <div>
             <Label className="text-[#0FB3B7] font-medium">Due Date</Label>
-            <Input 
-              type="date" 
-              value={dueDate} 
-              onChange={(e) => setDueDate(e.target.value)} 
+            <Input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
               readOnly={isPaid}
               className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
             />
@@ -257,20 +315,20 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Registration Fee</Label>
-              <Input 
-                type="number" 
-                value={registrationFee} 
-                onChange={(e) => setRegistrationFee(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={registrationFee}
+                onChange={(e) => setRegistrationFee(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
             </div>
             <div>
               <Label className="text-[#0FB3B7] font-medium">Monthly Fee</Label>
-              <Input 
-                type="number" 
-                value={monthlyFee} 
-                onChange={(e) => setMonthlyFee(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={monthlyFee}
+                onChange={(e) => setMonthlyFee(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
@@ -280,20 +338,20 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Late Fee</Label>
-              <Input 
-                type="number" 
-                value={lateFee} 
-                onChange={(e) => setLateFee(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={lateFee}
+                onChange={(e) => setLateFee(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
             </div>
             <div>
               <Label className="text-[#0FB3B7] font-medium">Stationary / Additional Charges</Label>
-              <Input 
-                type="number" 
-                value={stationaryCharges} 
-                onChange={(e) => setStationaryCharges(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={stationaryCharges}
+                onChange={(e) => setStationaryCharges(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
@@ -303,20 +361,20 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Previous Balance</Label>
-              <Input 
-                type="number" 
-                value={previousBalance} 
-                onChange={(e) => setPreviousBalance(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={previousBalance}
+                onChange={(e) => setPreviousBalance(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
             </div>
             <div>
               <Label className="text-[#0FB3B7] font-medium">Discount</Label>
-              <Input 
-                type="number" 
-                value={discount} 
-                onChange={(e) => setDiscount(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={discount}
+                onChange={(e) => setDiscount(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
@@ -326,18 +384,18 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
           <div className="grid grid-cols-2 gap-4 border-t border-[#FFD700]/20 pt-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Total Amount</Label>
-              <Input 
-                value={`PKR ${totalAmount.toLocaleString()}`} 
-                readOnly 
+              <Input
+                value={`PKR ${totalAmount.toLocaleString()}`}
+                readOnly
                 className="border-[#0FB3B7]/20 bg-[#0FB3B7]/10 text-[#0FB3B7] font-bold text-lg"
               />
             </div>
             <div>
               <Label className="text-[#0FB3B7] font-medium">Paid Amount</Label>
-              <Input 
-                type="number" 
-                value={paidAmountInput !== null ? paidAmountInput : totalAmount} 
-                onChange={(e) => setPaidAmountInput(Number(e.target.value))} 
+              <Input
+                type="number"
+                value={paidAmountInput !== null ? paidAmountInput : totalAmount}
+                onChange={(e) => setPaidAmountInput(Number(e.target.value))}
                 readOnly={isPaid}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
@@ -347,9 +405,9 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-[#0FB3B7] font-medium">Remaining Amount</Label>
-              <Input 
-                value={`PKR ${remainingAmount.toLocaleString()}`} 
-                readOnly 
+              <Input
+                value={`PKR ${remainingAmount.toLocaleString()}`}
+                readOnly
                 className="border-[#0FB3B7]/20 bg-red-50 text-red-600 font-bold"
               />
             </div>
@@ -370,9 +428,9 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
               ) : (
                 <>
                   <Label className="text-[#0FB3B7] font-medium">Payment Method</Label>
-                  <Input 
-                    value={paymentMethod} 
-                    readOnly 
+                  <Input
+                    value={paymentMethod}
+                    readOnly
                     className="border-[#0FB3B7]/20 bg-[#0FB3B7]/5 text-[#0FB3B7]/90"
                   />
                 </>
@@ -382,23 +440,23 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
 
           <div className="flex gap-2 pt-2">
             {!isPaid && (
-              <Button 
-                onClick={handlePay} 
+              <Button
+                onClick={handlePay}
                 disabled={isLoading}
                 className="bg-[#0FB3B7] hover:bg-[#0E9EA2] text-white transition-all duration-200 hover:shadow-lg"
               >
                 {isLoading ? "Processing..." : "Pay Fee"}
               </Button>
             )}
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={downloadPDF}
               className="border-[#0FB3B7]/30 text-[#0FB3B7] hover:bg-[#0FB3B7]/10 hover:border-[#0FB3B7]/50 transition-all duration-200"
             >
               {isPaid ? "Download Slip" : "Download Voucher"}
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={onClose}
               className="text-[#0FB3B7]/70 hover:text-[#0FB3B7] hover:bg-[#0FB3B7]/10 transition-all duration-200"
             >
