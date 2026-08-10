@@ -10,14 +10,25 @@ interface SummaryCardProps {
 
 function SummaryCard({ title, value }: SummaryCardProps) {
   return (
-    <Card className="bg-[#0FB3B7]/5 border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-lg">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-md font-medium text-[#0FB3B7] uppercase tracking-wider">
+    // <Card className="bg-[#0FB3B7]/5 border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-lg">
+    //   <CardHeader className="pb-2">
+    //     <CardTitle className="text-xs font-small text-[#0FB3B7] uppercase tracking-wider">
+    //       {title}
+    //     </CardTitle>
+    //   </CardHeader>
+    //   <CardContent>
+    //     <p className="text-xl font-bold text-[#0FB3B7]">{value}</p>
+    //   </CardContent>
+    // </Card>
+
+    <Card className="bg-[#0FB3B7]/5 border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-lg h-full">
+      <CardHeader className="pb-2 min-h-[48px]">
+        <CardTitle className="text-xs font-small text-[#0FB3B7] uppercase tracking-wider line-clamp-2">
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-bold text-[#0FB3B7]">{value}</p>
+      <CardContent className="pt-0 flex items-end h-[calc(100%-48px)]">
+        <p className="text-xl font-bold text-[#0FB3B7]">{value}</p>
       </CardContent>
     </Card>
   );
@@ -139,7 +150,7 @@ export function DashboardSummaryCards({ stats }: DashboardSummaryCardsProps) {
           </h2>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* <div className="grid gap-6 lg:grid-cols-2">
           {stats.groupStats.map((group) => (
             <Card
               key={group.group}
@@ -162,7 +173,71 @@ export function DashboardSummaryCards({ stats }: DashboardSummaryCardsProps) {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </div> */}
+
+
+          <div className="grid gap-6 lg:grid-cols-2">
+  {/* 1st Row: JSI TUITION CENTRE (Left) | JSI COACHING CENTRE (Right) */}
+  {stats.groupStats
+    .filter((g) => g.group === "JSI TUITION CENTRE" || g.group === "JSI COACHING CENTRE")
+    .sort((a, b) => {
+      const order = ["JSI TUITION CENTRE", "JSI COACHING CENTRE"];
+      return order.indexOf(a.group) - order.indexOf(b.group);
+    })
+    .map((group) => (
+      <Card
+        key={group.group}
+        className="bg-white/50 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl"
+      >
+        <CardHeader className="border-b border-[#FFD700]/20 pb-3">
+          <CardTitle className="text-[#0FB3B7] flex items-center gap-2 text-lg">
+            <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
+            {group.group}
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <SummaryCard title="Students" value={group.totalStudents} />
+            <SummaryCard title="Total Fees" value={formatCurrency(group.totalFees)} />
+            <SummaryCard title="Paid Fees" value={formatCurrency(group.paidFees)} />
+            <SummaryCard title="Due Fees" value={formatCurrency(group.dueFees)} />
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+
+  {/* 2nd Row: JSI BASIC CLASSES (Left) | JSI PRE-SCHOOLING (Right) */}
+  {stats.groupStats
+    .filter((g) => g.group === "JSI BASIC CLASSES" || g.group === "JSI PRE-SCHOOLING")
+    .sort((a, b) => {
+      const order = ["JSI BASIC CLASSES", "JSI PRE-SCHOOLING"];
+      return order.indexOf(a.group) - order.indexOf(b.group);
+    })
+    .map((group) => (
+      <Card
+        key={group.group}
+        className="bg-white/50 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl"
+      >
+        <CardHeader className="border-b border-[#FFD700]/20 pb-3">
+          <CardTitle className="text-[#0FB3B7] flex items-center gap-2 text-lg">
+            <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
+            {group.group}
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <SummaryCard title="Students" value={group.totalStudents} />
+            <SummaryCard title="Total Fees" value={formatCurrency(group.totalFees)} />
+            <SummaryCard title="Paid Fees" value={formatCurrency(group.paidFees)} />
+            <SummaryCard title="Due Fees" value={formatCurrency(group.dueFees)} />
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+</div>
+
       </section>
 
 

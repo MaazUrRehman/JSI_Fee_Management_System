@@ -64,8 +64,8 @@ export default function DashboardCharts({ data }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
               <XAxis dataKey="month" stroke="#0FB3B7" />
               <YAxis stroke="#0FB3B7" />
-              <Tooltip 
-                contentStyle={{ 
+              <Tooltip
+                contentStyle={{
                   backgroundColor: 'rgba(15, 179, 183, 0.1)',
                   border: '1px solid #0FB3B7',
                   borderRadius: '8px'
@@ -118,8 +118,8 @@ export default function DashboardCharts({ data }: Props) {
                     />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: 'rgba(15, 179, 183, 0.1)',
                     border: '1px solid #0FB3B7',
                     borderRadius: '8px'
@@ -156,8 +156,8 @@ export default function DashboardCharts({ data }: Props) {
                     />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: 'rgba(15, 179, 183, 0.1)',
                     border: '1px solid #0FB3B7',
                     borderRadius: '8px'
@@ -186,8 +186,8 @@ export default function DashboardCharts({ data }: Props) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
                 <XAxis dataKey="shift" stroke="#0FB3B7" />
                 <YAxis stroke="#0FB3B7" />
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: 'rgba(15, 179, 183, 0.1)',
                     border: '1px solid #0FB3B7',
                     borderRadius: '8px'
@@ -217,8 +217,8 @@ export default function DashboardCharts({ data }: Props) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
                 <XAxis dataKey="class" stroke="#0FB3B7" />
                 <YAxis stroke="#0FB3B7" />
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: 'rgba(15, 179, 183, 0.1)',
                     border: '1px solid #0FB3B7',
                     borderRadius: '8px'
@@ -236,7 +236,7 @@ export default function DashboardCharts({ data }: Props) {
       </div>
 
       {/* Students By Group */}
-      <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
+      {/* <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
         <CardHeader className="border-b border-[#FFD700]/20">
           <CardTitle className="text-[#0FB3B7] flex items-center gap-2">
             <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
@@ -265,7 +265,51 @@ export default function DashboardCharts({ data }: Props) {
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
+      </Card> */}
+
+
+      {/* Students By Group */}
+      <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
+        <CardHeader className="border-b border-[#FFD700]/20">
+          <CardTitle className="text-[#0FB3B7] flex items-center gap-2">
+            <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
+            Students By Department
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="h-[350px] pt-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[...data.studentsByGroup].sort((a, b) => {
+                const order = [
+                  "JSI TUITION CENTRE",
+                  "JSI COACHING CENTRE",
+                  "JSI BASIC CLASSES",
+                  "JSI PRE-SCHOOLING"
+                ];
+                return order.indexOf(a.group) - order.indexOf(b.group);
+              })}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
+              <XAxis dataKey="group" stroke="#0FB3B7" />
+              <YAxis stroke="#0FB3B7" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(15, 179, 183, 0.1)',
+                  border: '1px solid #0FB3B7',
+                  borderRadius: '8px'
+                }}
+              />
+              <Bar
+                dataKey="students"
+                fill="#0FB3B7"
+                radius={[8, 8, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
       </Card>
+
 
       {/* Other Receipts */}
       <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
@@ -303,8 +347,8 @@ export default function DashboardCharts({ data }: Props) {
                 <Cell fill="#0FB3B7" />
                 <Cell fill="#FFD700" />
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
+              <Tooltip
+                contentStyle={{
                   backgroundColor: 'rgba(15, 179, 183, 0.1)',
                   border: '1px solid #0FB3B7',
                   borderRadius: '8px'

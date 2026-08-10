@@ -26,6 +26,7 @@ export interface FeePDFInfo {
  */
 export const generateFeePDF = (student: Student, receiptInfo: FeePDFInfo) => {
   const doc = new jsPDF();
+  
   const isPaid = String(receiptInfo.status).toLowerCase() === "paid";
   const title = isPaid ? "PAYMENT RECEIPT" : "FEE VOUCHER";
 

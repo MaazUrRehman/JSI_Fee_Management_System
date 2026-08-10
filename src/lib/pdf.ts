@@ -352,7 +352,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   const TITLE = "JSI TUITION & COACHING CENTRE";
   const SUPERVISION =
     "Under the Supervision of Sir Engr. Hafiz Muhammad Faizan-ul-Haq";
-  const TAGLINE = "A Promise of Improvement";
+  // const TAGLINE = "A Promise of Improvement";
 
   const titleSize = 25.5;
   doc.setFont("helvetica", "bold");
@@ -381,10 +381,20 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.text(TITLE, titleLeft, 35.5, { align: "left" });
 
   // tagline -> right side, title ke right edge par khatam
-  doc.setFont("times", "bolditalic");
-  doc.setFontSize(14);
-  doc.setTextColor(20, 20, 20);
-  doc.text(TAGLINE, titleRight, 42.5, { align: "right" });
+  // doc.setFont("times", "bolditalic");
+  // doc.setFontSize(14);
+  // doc.setTextColor(20, 20, 20);
+  // doc.text(TAGLINE, titleRight, 42.5, { align: "right" });
+
+  // tagline -> image laga di (text ki jagah)
+doc.addImage(
+  "/pdf-assets/a_promise_of_improvement.png",
+  "PNG",
+  titleRight - 75, // X position (right side se adjust)
+  36,              // Y position
+  78,              // width
+  7                // height
+);
 
   /* ---------- student information ---------- */
   const sTop = 50;
@@ -394,92 +404,150 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   pillTitle(doc, "Student Information", 105, sTop - 4.3, 74);
 
   doc.setLineWidth(0.6);
-  doc.line(105, sTop + 4.5, 105, sTop + 49.5);
+  doc.line(105, sTop + 4.5, 105, sTop + 53.5);
 
   const ys = [sTop + 10, sTop + 20.5, sTop + 31, sTop + 41.5, sTop + 50.5];
 
-  const leftRows: Array<
-    [(d: jsPDF, x: number, y: number) => void, string, string]
-  > = [
-      [icoId, "Student ID", String(student.student_id ?? "-")],
-      [icoPerson, "Student Name", String(student.student_name ?? "-")],
-      [icoFather, "Father Name", String(student.father_name ?? "-")],
-      [icoDoc, "Class", String(student.class ?? "-")],
-      [
-        icoBag,
-        "Department",
-        String(student.department ?? student.student_group ?? "-"),
-      ],
-    ];
+  // const leftRows: Array<
+  //   [(d: jsPDF, x: number, y: number) => void, string, string]
+  // > = [
+  //     [icoId, "Student ID", String(student.student_id ?? "-")],
+  //     [icoPerson, "Student Name", String(student.student_name ?? "-")],
+  //     [icoFather, "Father Name", String(student.father_name ?? "-")],
+  //     [icoDoc, "Class", String(student.class ?? "-")],
+  //     [
+  //       icoBag,
+  //       "Department",
+  //       String(student.department ?? student.student_group ?? "-"),
+  //     ],
+  //   ];
 
-  leftRows.forEach(([ico, label, value], i) => {
-    ico(doc, 15, ys[i]! - 5);
-    row(doc, label, value, 26, ys[i]!, 57, 63);
-  });
+  // leftRows.forEach(([ico, label, value], i) => {
+  //   ico(doc, 15, ys[i]! - 5);
+  //   row(doc, label, value, 26, ys[i]!, 57, 63);
+  // });
 
-  const rightRows: Array<[boolean, string, string]> = [
-    [true, "Shift", String(student.shift ?? "-")],
-    [
-      false,
-      "Issue Date",
-      formatDateValue(info.issue_date ?? new Date().toISOString()),
-    ],
-    [
-      false,
-      isPaid ? "Paid Date" : "Due Date",
-      formatDateValue(
-        isPaid
-          ? (info.paid_date ?? new Date().toISOString())
-          : info.due_date
-      ),
-    ],
-    // [false, "Due Date", formatDateValue(info.due_date)],
-    // [false, "Fee Month", `${info.month} ${info.year}`],
-    [
-      false,
-      "Fee Month",
-      `${isNaN(Number(info.month))
-        ? info.month
-        : new Date(0, Number(info.month) - 1).toLocaleString("en-US", {
-          month: "long",
-        })} ${info.year}`,
-    ],
+  // Left side - without icons
+const leftRows: Array<[string, string]> = [
+  ["Student ID", String(student.student_id ?? "-")],
+  ["Student Name", String(student.student_name ?? "-")],
+  ["Father Name", String(student.father_name ?? "-")],
+  ["Class", String(student.class ?? "-")],
+  ["Department", String(student.department ?? student.student_group ?? "-")],
+];
 
-    // ✅ 5th row ab STATUS hai (voucher # nahi)
-    [false, "Status", isPaid ? "PAID" : "UNPAID"],
-  ];
+leftRows.forEach(([label, value], i) => {
+  row(doc, label, value, 15, ys[i]!, 45, 50);  // <-- x=15 (icon ki jagah)
+});
 
-  rightRows.forEach(([isStar, label, value], i) => {
-    icoCalendar(doc, 111, ys[i]! - 5.5, isStar);
-    row(doc, label, value, 122, ys[i]!, 153, 159);
-  });
+
+  // const rightRows: Array<[boolean, string, string]> = [
+  //   [true, "Shift", String(student.shift ?? "-")],
+  //   [
+  //     false,
+  //     "Issue Date",
+  //     formatDateValue(info.issue_date ?? new Date().toISOString()),
+  //   ],
+  //   [
+  //     false,
+  //     isPaid ? "Paid Date" : "Due Date",
+  //     formatDateValue(
+  //       isPaid
+  //         ? (info.paid_date ?? new Date().toISOString())
+  //         : info.due_date
+  //     ),
+  //   ],
+  //   // [false, "Due Date", formatDateValue(info.due_date)],
+  //   // [false, "Fee Month", `${info.month} ${info.year}`],
+  //   [
+  //     false,
+  //     "Fee Month",
+  //     `${isNaN(Number(info.month))
+  //       ? info.month
+  //       : new Date(0, Number(info.month) - 1).toLocaleString("en-US", {
+  //         month: "long",
+  //       })} ${info.year}`,
+  //   ],
+
+  //   // ✅ 5th row ab STATUS hai (voucher # nahi)
+  //   [false, "Status", isPaid ? "PAID" : "UNPAID"],
+  // ];
+
+  // rightRows.forEach(([isStar, label, value], i) => {
+  //   icoCalendar(doc, 111, ys[i]! - 5.5, isStar);
+  //   row(doc, label, value, 122, ys[i]!, 153, 159);
+  // });
+
+
+  // Right side - without icons
+const rightRows: Array<[string, string]> = [
+  ["Shift", String(student.shift ?? "-")],
+  ["Issue Date", formatDateValue(info.issue_date ?? new Date().toISOString())],
+  [
+    isPaid ? "Paid Date" : "Due Date",
+    formatDateValue(
+      isPaid
+        ? (info.paid_date ?? new Date().toISOString())
+        : info.due_date
+    ),
+  ],
+  [
+    "Fee Month",
+    `${isNaN(Number(info.month))
+      ? info.month
+      : new Date(0, Number(info.month) - 1).toLocaleString("en-US", {
+        month: "long",
+      })} ${info.year}`,
+  ],
+  // ["Status", isPaid ? "PAID" : "UNPAID"],
+];
+
+rightRows.forEach(([label, value], i) => {
+  row(doc, label, value, 111, ys[i]!, 141, 146);  // <-- x=111 (icon ki jagah)
+});
+
+// Status row (5th row) - without icon
+doc.setFont("helvetica", "bold");
+doc.setFontSize(10);
+doc.setTextColor(...TEXT);
+doc.text("Status", 111, ys[4]!);
+doc.text(":", 141, ys[4]!);
+if (isPaid) {
+  doc.setTextColor(...GREEN);
+  doc.text("PAID", 146, ys[4]!);
+} else {
+  doc.setTextColor(...RED);
+  doc.text("UNPAID", 146, ys[4]!);
+}
 
   // 5th right row: receipt no / status
-  icoDoc(doc, 111, ys[4]! - 5.5);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(...TEXT);
-  doc.text("Status", 122, ys[4]!);
-  doc.text(":", 153, ys[4]!);
-  if (isPaid) {
-    doc.setTextColor(...GREEN);
-    doc.text("PAID", 159, ys[4]!);
-  } else {
-    doc.setTextColor(...RED);
-    doc.text("UNPAID", 159, ys[4]!);
-  }
+  // icoDoc(doc, 111, ys[4]! - 5.5);
+  // doc.setFont("helvetica", "bold");
+  // doc.setFontSize(10);
+  // doc.setTextColor(...TEXT);
+  // doc.text("Status", 122, ys[4]!);
+  // doc.text(":", 153, ys[4]!);
+  // if (isPaid) {
+  //   doc.setTextColor(...GREEN);
+  //   doc.text("PAID", 159, ys[4]!);
+  // } else {
+  //   doc.setTextColor(...RED);
+  //   doc.text("UNPAID", 159, ys[4]!);
+  // }
+
+
 
   /* ---------- watermark (JSI logo, page center) ---------- */
   doc.saveGraphicsState();
   // GState is available at runtime
   doc.setGState(new (doc as unknown as { GState: new (o: object) => unknown }).GState({ opacity: 0.07 }));
-  const wmW = 260;  // width barhao
-  const wmH = 200;  // height kam rakho (stretched horizontal)
+  const wmW = 250;  // width barhao
+  const wmH = 180;  // height kam rakho (stretched horizontal)
   doc.addImage(
     "/pdf-assets/JSI_logo.jpeg",
     "JPEG",
     105 - wmW / 2,
-    148 - wmH / 2,
+    156 - wmH / 2,
     wmW,
     wmH,
     "jsi-watermark",
@@ -532,7 +600,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12.5);
   doc.setTextColor(255, 255, 255);
-  doc.text("FEE DETAILS", 105, tTop + 7.6, { align: "center" });
+  doc.text("FEE DETAILS", 105, tTop + 6.3, { align: "center" });
 
   // header row
   const hY = tTop + barH;
@@ -540,7 +608,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.rect(cSno, hY, tRight - cSno, headH, "F");
   doc.setTextColor(...BLUE);
   doc.setFontSize(10.5);
-  doc.text("S.No.", (cSno + cDesc) / 2, hY + 7.2, { align: "center" });
+  doc.text("#", (cSno + cDesc) / 2, hY + 7.2, { align: "center" });
   doc.text("Description", (cDesc + cAmt) / 2, hY + 7.2, { align: "center" });
   doc.text("Amount (PKR)", (cAmt + tRight) / 2, hY + 7.2, { align: "center" });
 
@@ -587,13 +655,13 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     size: number;
   }> = [
       { label: "TOTAL AMOUNT", value: info.total_amount, color: BLUE, size: 13 },
+      { label: "PAID AMOUNT", value: paidAmt, color: GREEN, size: 11.5 },
       {
         label: "REMAINING AMOUNT",
         value: remainingAmt,
         color: remainingAmt > 0 ? RED : GREEN,
         size: 11.5,
       },
-      { label: "PAID AMOUNT", value: paidAmt, color: GREEN, size: 11.5 },
     ];
 
   totalsRows.forEach((t, i) => {
@@ -670,7 +738,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(255, 255, 255);
-    doc.text(String(i + 1), 17.5, insY + 0.3, { align: "center" });
+    doc.text(String(i + 1), 17.5, insY - 0.3 , { align: "center" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(insFont);
@@ -710,24 +778,43 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
 
   const cardX = (i: number) => outerL + i * (cardW + GAP);
 
+  // ["OPTION # 01", "OPTION # 02", "OPTION # 03"].forEach((t, i) => {
+  //   const x = cardX(i);
+  //   const cx = x + cardW / 2;
+
+  //   doc.setDrawColor(...BLUE);
+  //   doc.setLineWidth(0.7);
+  //   doc.roundedRect(x, pTop, cardW, payH, 3.5, 3.5);
+
+  //   doc.setFillColor(...BLUE);
+  //   doc.roundedRect(cx - cardW / 2 + 5, pTop + 3.2, cardW - 10, 5.6, 1.2, 1.2, "F");
+  //   doc.setFont("helvetica", "bold");
+  //   doc.setFontSize(8);
+  //   doc.setTextColor(255, 255, 255);
+  //   doc.text(t, cx, pTop + 7.2, { align: "center" });
+  // });
+
   ["OPTION # 01", "OPTION # 02", "OPTION # 03"].forEach((t, i) => {
-    const x = cardX(i);
-    const cx = x + cardW / 2;
+  const x = cardX(i);
+  const cx = x + cardW / 2;
 
-    doc.setDrawColor(...BLUE);
-    doc.setLineWidth(0.7);
-    doc.roundedRect(x, pTop, cardW, payH, 3.5, 3.5);
+  doc.setDrawColor(...BLUE);
+  doc.setLineWidth(0.7);
+  doc.roundedRect(x, pTop, cardW, payH, 3.5, 3.5);
 
-    doc.setFillColor(...BLUE);
-    doc.roundedRect(cx - cardW / 2 + 5, pTop + 3.2, cardW - 10, 5.6, 1.2, 1.2, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(255, 255, 255);
-    doc.text(t, cx, pTop + 7.2, { align: "center" });
-  });
+  // ✅ Heading - White background, Blue text, Blue border
+  doc.setFillColor(255, 255, 255);  // White fill
+  doc.setDrawColor(...BLUE);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(cx - cardW / 2 + 5, pTop + 2.2, cardW - 10, 5.6, 1.2, 1.2, "FD");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(...BLUE);  // Blue text
+  doc.text(t, cx, pTop + 5.9, { align: "center" });
+});
 
   // pill title cards ke baad taake card borders text ko cross na karein
-  pillTitle(doc, "Payment Methods (for online payments)", 105, pTop - 9.2, 110);
+  pillTitle(doc, "Payment Methods (for online payments)", 105, pTop - 10.2, 110);
 
 
   // option 1 (bank details, left aligned)
@@ -799,8 +886,8 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     "PNG",
     12,
     fTop - 2,
-    5.5,   // width
-    4.5    // height
+    5,   // width
+    4    // height
   );
 
   // WhatsApp icon
@@ -809,14 +896,14 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     "PNG",
     12,
     fTop + 3,
-    5.5,   // width
-    4.5    // height
+    5,   // width
+    4    // height
   );
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
   doc.setTextColor(...BLUE);
-  doc.text("0312-0397239", 20, fTop + 2.2);
-  doc.text("0340-8797239", 20, fTop + 7.2);
+  doc.text("0312-0397239", 20, fTop + 1);
+  doc.text("0340-8797239", 20, fTop + 6);
 
   // globe
   // doc.setDrawColor(...BLUE);
@@ -825,11 +912,11 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   // doc.circle(84, fTop + 4, 2.2);
   // doc.line(81.8, fTop + 4, 86.2, fTop + 4);
 
-  addIcon(doc, "/pdf-assets/web.png", 80.5, fTop + 1, 6);
+  addIcon(doc, "/pdf-assets/web.png", 80.5, fTop - 0.5, 6);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...BLUE);
-  doc.text("www.jsieducationalnetwork.com", 89, fTop + 5, { align: "left" });
+  doc.text("www.jsieducationalnetwork.com", 89, fTop + 3.5, { align: "left" });
 
   // location pin
   doc.setFillColor(...BLUE);
