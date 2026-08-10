@@ -1042,7 +1042,7 @@ export const generateOtherReceiptPDF = (
   const titleRight = 105 + titleW / 2;
 
   // supervision line -> title se thoda lamba
-  const supSize = fitFontSize(doc, SUPERVISION, "helvetica", "bold", titleW + 15, 14);
+  const supSize = fitFontSize(doc, SUPERVISION, "helvetica", "bold", titleW , 14);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(supSize);
   doc.setTextColor(20, 20, 20);
