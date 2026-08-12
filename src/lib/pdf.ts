@@ -375,9 +375,17 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.setTextColor(20, 20, 20);
   doc.text(SUPERVISION, titleLeft, 25, { align: "left" });
 
+  // doc.setFont("helvetica", "bold");
+  // doc.setFontSize(titleSize);
+  // doc.setTextColor(...BLUE);
+  // doc.text(TITLE, titleLeft, 35.5, { align: "left" });
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(titleSize);
   doc.setTextColor(...BLUE);
+  // Add a shadow or stroke effect to make it bolder
+  doc.text(TITLE, titleLeft + 0.3, 35.5, { align: "left" });
+  doc.text(TITLE, titleLeft - 0.3, 35.5, { align: "left" });
   doc.text(TITLE, titleLeft, 35.5, { align: "left" });
 
   // tagline -> right side, title ke right edge par khatam
@@ -387,14 +395,14 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   // doc.text(TAGLINE, titleRight, 42.5, { align: "right" });
 
   // tagline -> image laga di (text ki jagah)
-doc.addImage(
-  "/pdf-assets/a_promise_of_improvement.png",
-  "PNG",
-  titleRight - 75, // X position (right side se adjust)
-  36,              // Y position
-  78,              // width
-  7                // height
-);
+  doc.addImage(
+    "/pdf-assets/a_promise_of_improvement.png",
+    "PNG",
+    titleRight - 75, // X position (right side se adjust)
+    36,              // Y position
+    78,              // width
+    7                // height
+  );
 
   /* ---------- student information ---------- */
   const sTop = 50;
@@ -428,17 +436,17 @@ doc.addImage(
   // });
 
   // Left side - without icons
-const leftRows: Array<[string, string]> = [
-  ["Student ID", String(student.student_id ?? "-")],
-  ["Student Name", String(student.student_name ?? "-")],
-  ["Father Name", String(student.father_name ?? "-")],
-  ["Class", String(student.class ?? "-")],
-  ["Department", String(student.department ?? student.student_group ?? "-")],
-];
+  const leftRows: Array<[string, string]> = [
+    ["Student ID", String(student.student_id ?? "-")],
+    ["Student Name", String(student.student_name ?? "-")],
+    ["Father Name", String(student.father_name ?? "-")],
+    ["Class", String(student.class ?? "-")],
+    ["Department", String(student.department ?? student.student_group ?? "-")],
+  ];
 
-leftRows.forEach(([label, value], i) => {
-  row(doc, label, value, 15, ys[i]!, 45, 50);  // <-- x=15 (icon ki jagah)
-});
+  leftRows.forEach(([label, value], i) => {
+    row(doc, label, value, 15, ys[i]!, 45, 50);  // <-- x=15 (icon ki jagah)
+  });
 
 
   // const rightRows: Array<[boolean, string, string]> = [
@@ -480,45 +488,45 @@ leftRows.forEach(([label, value], i) => {
 
 
   // Right side - without icons
-const rightRows: Array<[string, string]> = [
-  ["Shift", String(student.shift ?? "-")],
-  ["Issue Date", formatDateValue(info.issue_date ?? new Date().toISOString())],
-  [
-    isPaid ? "Paid Date" : "Due Date",
-    formatDateValue(
-      isPaid
-        ? (info.paid_date ?? new Date().toISOString())
-        : info.due_date
-    ),
-  ],
-  [
-    "Fee Month",
-    `${isNaN(Number(info.month))
-      ? info.month
-      : new Date(0, Number(info.month) - 1).toLocaleString("en-US", {
-        month: "long",
-      })} ${info.year}`,
-  ],
-  // ["Status", isPaid ? "PAID" : "UNPAID"],
-];
+  const rightRows: Array<[string, string]> = [
+    ["Shift", String(student.shift ?? "-")],
+    ["Issue Date", formatDateValue(info.issue_date ?? new Date().toISOString())],
+    [
+      isPaid ? "Paid Date" : "Due Date",
+      formatDateValue(
+        isPaid
+          ? (info.paid_date ?? new Date().toISOString())
+          : info.due_date
+      ),
+    ],
+    [
+      "Fee Month",
+      `${isNaN(Number(info.month))
+        ? info.month
+        : new Date(0, Number(info.month) - 1).toLocaleString("en-US", {
+          month: "long",
+        })} ${info.year}`,
+    ],
+    // ["Status", isPaid ? "PAID" : "UNPAID"],
+  ];
 
-rightRows.forEach(([label, value], i) => {
-  row(doc, label, value, 111, ys[i]!, 141, 146);  // <-- x=111 (icon ki jagah)
-});
+  rightRows.forEach(([label, value], i) => {
+    row(doc, label, value, 111, ys[i]!, 141, 146);  // <-- x=111 (icon ki jagah)
+  });
 
-// Status row (5th row) - without icon
-doc.setFont("helvetica", "bold");
-doc.setFontSize(10);
-doc.setTextColor(...TEXT);
-doc.text("Status", 111, ys[4]!);
-doc.text(":", 141, ys[4]!);
-if (isPaid) {
-  doc.setTextColor(...GREEN);
-  doc.text("PAID", 146, ys[4]!);
-} else {
-  doc.setTextColor(...RED);
-  doc.text("UNPAID", 146, ys[4]!);
-}
+  // Status row (5th row) - without icon
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...TEXT);
+  doc.text("Status", 111, ys[4]!);
+  doc.text(":", 141, ys[4]!);
+  if (isPaid) {
+    doc.setTextColor(...GREEN);
+    doc.text("PAID", 146, ys[4]!);
+  } else {
+    doc.setTextColor(...RED);
+    doc.text("UNPAID", 146, ys[4]!);
+  }
 
   // 5th right row: receipt no / status
   // icoDoc(doc, 111, ys[4]! - 5.5);
@@ -693,7 +701,7 @@ if (isPaid) {
 
   /* ---------- important instructions ---------- */
   const iTop = Math.max(INSTR_TOP, tTop + tableH + 5);
-  const insH = Math.max(34, PAY_TOP - 11 - iTop);
+  const insH = Math.max(32, PAY_TOP - 12 - iTop);
 
   doc.setDrawColor(...BLUE);
   doc.setLineWidth(0.7);
@@ -729,7 +737,7 @@ if (isPaid) {
     const h = totalLines * insLine + (insBlocks.length - 1) * gap;
     if (insTop + h <= insBottom) break;
   }
-  const insGap = insLine * 0.75;
+  const insGap = insLine * 0.95;
 
   let insY = insTop;
   insBlocks.forEach((lines, i) => {
@@ -738,7 +746,7 @@ if (isPaid) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(255, 255, 255);
-    doc.text(String(i + 1), 17.5, insY - 0.3 , { align: "center" });
+    doc.text(String(i + 1), 17.5, insY - 0.3, { align: "center" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(insFont);
@@ -795,23 +803,23 @@ if (isPaid) {
   // });
 
   ["OPTION # 01", "OPTION # 02", "OPTION # 03"].forEach((t, i) => {
-  const x = cardX(i);
-  const cx = x + cardW / 2;
+    const x = cardX(i);
+    const cx = x + cardW / 2;
 
-  doc.setDrawColor(...BLUE);
-  doc.setLineWidth(0.7);
-  doc.roundedRect(x, pTop, cardW, payH, 3.5, 3.5);
+    doc.setDrawColor(...BLUE);
+    doc.setLineWidth(0.7);
+    doc.roundedRect(x, pTop, cardW, payH, 3.5, 3.5);
 
-  // ✅ Heading - White background, Blue text, Blue border
-  doc.setFillColor(255, 255, 255);  // White fill
-  doc.setDrawColor(...BLUE);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(cx - cardW / 2 + 5, pTop + 2.2, cardW - 10, 5.6, 1.2, 1.2, "FD");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(...BLUE);  // Blue text
-  doc.text(t, cx, pTop + 5.9, { align: "center" });
-});
+    // ✅ Heading - White background, Blue text, Blue border
+    doc.setFillColor(255, 255, 255);  // White fill
+    doc.setDrawColor(...BLUE);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(cx - cardW / 2 + 5, pTop + 2.2, cardW - 10, 5.6, 1.2, 1.2, "FD");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...BLUE);  // Blue text
+    doc.text(t, cx, pTop + 5.9, { align: "center" });
+  });
 
   // pill title cards ke baad taake card borders text ko cross na karein
   pillTitle(doc, "Payment Methods (for online payments)", 105, pTop - 10.2, 110);

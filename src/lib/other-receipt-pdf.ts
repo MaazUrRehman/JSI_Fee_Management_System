@@ -1051,6 +1051,8 @@ export const generateOtherReceiptPDF = (
   doc.setFont("helvetica", "bold");
   doc.setFontSize(titleSize);
   doc.setTextColor(...BLUE);
+  doc.text(TITLE, titleLeft + 0.3, 35.5, { align: "left" });
+  doc.text(TITLE, titleLeft - 0.3, 35.5, { align: "left" });
   doc.text(TITLE, titleLeft, 35.5, { align: "left" });
 
   // tagline -> image
@@ -1248,7 +1250,7 @@ export const generateOtherReceiptPDF = (
 
   /* ---------- important instructions ---------- */
   const iTop = Math.max(INSTR_TOP, tTop + tableH + 2);
-  const insH = Math.max(34, PAY_TOP - 11 - iTop);
+  const insH = Math.max(32, PAY_TOP - 12 - iTop);
 
   doc.setDrawColor(...BLUE);
   doc.setLineWidth(0.7);
@@ -1281,7 +1283,7 @@ export const generateOtherReceiptPDF = (
     const h = totalLines * insLine + (insBlocks.length - 1) * gap;
     if (insTop + h <= insBottom) break;
   }
-  const insGap = insLine * 0.75;
+  const insGap = insLine * 0.95;
 
   let insY = insTop;
   insBlocks.forEach((lines, i) => {
