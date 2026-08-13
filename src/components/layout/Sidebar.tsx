@@ -65,7 +65,7 @@
 
 // export function Sidebar() {
 //   const pathname = usePathname();
-  
+
 //   return (
 //     <aside className="fixed left-0 top-0 h-screen w-[260px] border-r border-[#0FB3B7]/10 bg-[#EFEFEF] p-4">
 //       {/* Logo/Header with Yellow Accent */}
@@ -77,7 +77,7 @@
 //           </h1>
 //         </div>
 //       </div>
-      
+
 //       <nav className="flex flex-col gap-2">
 //         {navItems.map((item) => {
 //           const Icon = item.icon;
@@ -106,7 +106,7 @@
 //         })}
 //       </nav>
 
-      
+
 //     </aside>
 //   );
 // }
@@ -128,6 +128,7 @@ import {
   Receipt,
   AlertCircle,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -205,14 +206,38 @@ export function Sidebar() {
       </nav>
 
       {/* Logout Button */}
-      <div className="mt-auto pt-6 border-t border-[#FFD700]/30">
+      {/* <div className="mt-auto pt-6 border-t border-[#FFD700]/30">
         <Button
           onClick={handleLogout}
           className="w-full flex items-center justify-center bg-[#0FB3B7] text-white shadow-md gap-2"
         >
           Logout
         </Button>
+      </div> */}
+      {/* Settings & Logout */}
+      <div className="mt-auto pt-6 border-t border-[#FFD700]/30 space-y-2">
+
+        {/* Settings Button */}
+        <Button
+          onClick={() => router.push("/settings")}
+          variant="outline"
+          className="w-full flex items-center justify-center gap-2 border-[#0FB3B7]/30 text-[#0FB3B7] hover:bg-[#0FB3B7]/10"
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </Button>
+
+        {/* Logout Button */}
+        <Button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center bg-[#0FB3B7] text-white shadow-md gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+
       </div>
+
     </aside>
   );
 }

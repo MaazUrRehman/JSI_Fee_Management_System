@@ -24,6 +24,31 @@ export default function LoginPage() {
     checkAuth();
   }, [router]);
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   try {
+  //     const res = await fetch("/api/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+
+  //     if (!res.ok) {
+  //       const data = await res.json();
+  //       throw new Error(data.error || "Login failed");
+  //     }
+
+  //     toast.success("Logged in successfully");
+  //     router.replace("/dashboard");
+  //   } catch (error) {
+  //     toast.error(error instanceof Error ? error.message : "Login failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -37,13 +62,22 @@ export default function LoginPage() {
 
       if (!res.ok) {
         const data = await res.json();
+
+        if (res.status === 401) {
+          throw new Error("Incorrect email or password");
+        }
+
         throw new Error(data.error || "Login failed");
       }
 
       toast.success("Logged in successfully");
       router.replace("/dashboard");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Login failed");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Incorrect email or password"
+      );
     } finally {
       setLoading(false);
     }
