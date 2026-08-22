@@ -305,7 +305,7 @@ function stamp(
     doc.setFontSize(8);
     doc.setTextColor(...color);
 
-    const d = rot(0, 6); // label ke neeche, stamp ke andar
+    const d = rot(0, 6); 
     doc.text(date, d[0], d[1], {
       align: "center",
       angle: -ANGLE,
@@ -344,30 +344,94 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   });
 
   /* ---------- header (aligned block) ----------
-     Teenon lines ek hi width par set hain:
-     - "Under ..." ka U title ke J ke upar
-     - "... Haq" ka Q title ke last letter (R) ke upar
-     - tagline right edge par khatam (title ke R ke neeche)
+
+  // ------------------------------------------------ */
+  // const TITLE = "JSI TUITION & COACHING CENTRE";
+  // const SUPERVISION =
+  //   "Under the Supervision of Sir Engr. Hafiz Muhammad Faizan-ul-Haq";
+  // // const TAGLINE = "A Promise of Improvement";
+
+  // const titleSize = 25.5;
+  // doc.setFont("helvetica", "bold");
+  // doc.setFontSize(titleSize);
+  // const titleW = doc.getTextWidth(TITLE);
+  // const titleLeft = 105 - titleW / 2;
+  // const titleRight = 105 + titleW / 2;
+
+  // // supervision line -> exactly title ki width
+  // const supSize = fitFontSize(
+  //   doc,
+  //   SUPERVISION,
+  //   "helvetica",
+  //   "bold",
+  //   titleW,
+  //   14,
+  // );
+  // doc.setFont("helvetica", "bold");
+  // doc.setFontSize(supSize);
+  // doc.setTextColor(20, 20, 20);
+  // doc.text(SUPERVISION, titleLeft, 25, { align: "left" });
+
+
+  // doc.setFont("helvetica", "bold");
+  // doc.setFontSize(titleSize);
+  // doc.setTextColor(...BLUE);
+  // // Add a shadow or stroke effect to make it bolder
+  // doc.text(TITLE, titleLeft + 0.3, 35.5, { align: "left" });
+  // doc.text(TITLE, titleLeft - 0.3, 35.5, { align: "left" });
+  // doc.text(TITLE, titleLeft, 35.5, { align: "left" });
+
+  // doc.addImage(
+  //   "/pdf-assets/a_promise_of_improvement.png",
+  //   "PNG",
+  //   titleRight - 75, // X position (right side se adjust)
+  //   36,              // Y position
+  //   78,              // width
+  //   7                // height
+  // );
+
+  // /* ---------- student information ---------- */
+  // const sTop = 50;
+  // doc.setDrawColor(...BLUE);
+  // doc.setLineWidth(0.7);
+  // doc.roundedRect(10, sTop, 190, 54, 3.5, 3.5);
+  // pillTitle(doc, "Student Information", 105, sTop - 4.3, 74);
+
+  // doc.setLineWidth(0.6);
+  // doc.line(105, sTop + 4.5, 105, sTop + 53.5);
+
+  // const ys = [sTop + 10, sTop + 20.5, sTop + 31, sTop + 41.5, sTop + 50.5];
+
+
+  
+  /* ---------- header (aligned block) ----------
   ------------------------------------------------ */
-  const TITLE = "JSI TUITION & COACHING CENTRE";
+  const TITLE_PART1 = "JSI ";
+  const TITLE_PART2 = "TUITION";
+  const TITLE_PART3 = " & COACHING CENTRE";
+  
   const SUPERVISION =
     "Under the Supervision of Sir Engr. Hafiz Muhammad Faizan-ul-Haq";
   // const TAGLINE = "A Promise of Improvement";
 
   const titleSize = 25.5;
+  
+  // Calculate total width for alignment
   doc.setFont("helvetica", "bold");
   doc.setFontSize(titleSize);
-  const titleW = doc.getTextWidth(TITLE);
-  const titleLeft = 105 - titleW / 2;
-  const titleRight = 105 + titleW / 2;
+  const w1 = doc.getTextWidth(TITLE_PART1);
+  const w2 = doc.getTextWidth(TITLE_PART2);
+  const w3 = doc.getTextWidth(TITLE_PART3);
+  const totalW = w1 + w2 + w3;
+  const titleLeft = 105 - totalW / 2;
 
-  // supervision line -> exactly title ki width
+  // supervision line -> exactly total width
   const supSize = fitFontSize(
     doc,
     SUPERVISION,
     "helvetica",
     "bold",
-    titleW,
+    totalW,
     14,
   );
   doc.setFont("helvetica", "bold");
@@ -375,30 +439,34 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.setTextColor(20, 20, 20);
   doc.text(SUPERVISION, titleLeft, 25, { align: "left" });
 
-  // doc.setFont("helvetica", "bold");
-  // doc.setFontSize(titleSize);
-  // doc.setTextColor(...BLUE);
-  // doc.text(TITLE, titleLeft, 35.5, { align: "left" });
-
+  // Draw title with "TUITION" in lighter weight
   doc.setFont("helvetica", "bold");
   doc.setFontSize(titleSize);
   doc.setTextColor(...BLUE);
-  // Add a shadow or stroke effect to make it bolder
-  doc.text(TITLE, titleLeft + 0.3, 35.5, { align: "left" });
-  doc.text(TITLE, titleLeft - 0.3, 35.5, { align: "left" });
-  doc.text(TITLE, titleLeft, 35.5, { align: "left" });
+  
+  let currentX = titleLeft;
+  
+  // Draw "JSI " in bold
+  doc.text(TITLE_PART1, currentX, 35.5, { align: "left" });
+  currentX += w1;
+  
+  // Draw "TUITION" in NORMAL (lighter) weight
+  doc.setFont("helvetica", "bold");
+  doc.text(TITLE_PART2, currentX, 35.5, { align: "left" });
+  currentX += w2;
+  
+  // Draw " & COACHING CENTRE" in bold
+  doc.setFont("helvetica", "bold");
+  doc.text(TITLE_PART3, currentX, 35.5, { align: "left" });
 
-  // tagline -> right side, title ke right edge par khatam
-  // doc.setFont("times", "bolditalic");
-  // doc.setFontSize(14);
-  // doc.setTextColor(20, 20, 20);
-  // doc.text(TAGLINE, titleRight, 42.5, { align: "right" });
-
-  // tagline -> image laga di (text ki jagah)
+  // Add shadow/stroke effect for "JSI" and "& COACHING CENTRE" only (optional)
+  // You can skip the shadow effect entirely or keep it minimal
+  
+  // Tagline image at the right
   doc.addImage(
     "/pdf-assets/a_promise_of_improvement.png",
     "PNG",
-    titleRight - 75, // X position (right side se adjust)
+    titleLeft + totalW - 75, // X position (right side se adjust)
     36,              // Y position
     78,              // width
     7                // height
@@ -416,24 +484,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
 
   const ys = [sTop + 10, sTop + 20.5, sTop + 31, sTop + 41.5, sTop + 50.5];
 
-  // const leftRows: Array<
-  //   [(d: jsPDF, x: number, y: number) => void, string, string]
-  // > = [
-  //     [icoId, "Student ID", String(student.student_id ?? "-")],
-  //     [icoPerson, "Student Name", String(student.student_name ?? "-")],
-  //     [icoFather, "Father Name", String(student.father_name ?? "-")],
-  //     [icoDoc, "Class", String(student.class ?? "-")],
-  //     [
-  //       icoBag,
-  //       "Department",
-  //       String(student.department ?? student.student_group ?? "-"),
-  //     ],
-  //   ];
 
-  // leftRows.forEach(([ico, label, value], i) => {
-  //   ico(doc, 15, ys[i]! - 5);
-  //   row(doc, label, value, 26, ys[i]!, 57, 63);
-  // });
 
   // Left side - without icons
   const leftRows: Array<[string, string]> = [
@@ -449,42 +500,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   });
 
 
-  // const rightRows: Array<[boolean, string, string]> = [
-  //   [true, "Shift", String(student.shift ?? "-")],
-  //   [
-  //     false,
-  //     "Issue Date",
-  //     formatDateValue(info.issue_date ?? new Date().toISOString()),
-  //   ],
-  //   [
-  //     false,
-  //     isPaid ? "Paid Date" : "Due Date",
-  //     formatDateValue(
-  //       isPaid
-  //         ? (info.paid_date ?? new Date().toISOString())
-  //         : info.due_date
-  //     ),
-  //   ],
-  //   // [false, "Due Date", formatDateValue(info.due_date)],
-  //   // [false, "Fee Month", `${info.month} ${info.year}`],
-  //   [
-  //     false,
-  //     "Fee Month",
-  //     `${isNaN(Number(info.month))
-  //       ? info.month
-  //       : new Date(0, Number(info.month) - 1).toLocaleString("en-US", {
-  //         month: "long",
-  //       })} ${info.year}`,
-  //   ],
-
-  //   // ✅ 5th row ab STATUS hai (voucher # nahi)
-  //   [false, "Status", isPaid ? "PAID" : "UNPAID"],
-  // ];
-
-  // rightRows.forEach(([isStar, label, value], i) => {
-  //   icoCalendar(doc, 111, ys[i]! - 5.5, isStar);
-  //   row(doc, label, value, 122, ys[i]!, 153, 159);
-  // });
+  
 
 
   // Right side - without icons
@@ -528,21 +544,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     doc.text("UNPAID", 146, ys[4]!);
   }
 
-  // 5th right row: receipt no / status
-  // icoDoc(doc, 111, ys[4]! - 5.5);
-  // doc.setFont("helvetica", "bold");
-  // doc.setFontSize(10);
-  // doc.setTextColor(...TEXT);
-  // doc.text("Status", 122, ys[4]!);
-  // doc.text(":", 153, ys[4]!);
-  // if (isPaid) {
-  //   doc.setTextColor(...GREEN);
-  //   doc.text("PAID", 159, ys[4]!);
-  // } else {
-  //   doc.setTextColor(...RED);
-  //   doc.text("UNPAID", 159, ys[4]!);
-  // }
-
+  
 
 
   /* ---------- watermark (JSI logo, page center) ---------- */
@@ -757,27 +759,17 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     insY += lines.length * insLine + insGap;
   });
 
-  // const stampDateText = isPaid
-  //   ? formatDateValue(info.paid_date ?? info.issue_date)
-  //   : formatDateValue(info.due_date);
-  // stamp(doc, isPaid ? "PAID" : "UNPAID", 172, iTop + insH / 2 + 1, isPaid, stampDateText);
 
   const stampDateText = isPaid
     ? formatDateValue(new Date().toISOString()) // Always current date for PAID
     : formatDateValue(info.due_date);
   stamp(doc, isPaid ? "PAID" : "UNPAID", 172, iTop + insH / 2 + 1, isPaid, stampDateText);
 
-  // doc.setFont("helvetica", "bold");
-  // doc.setFontSize(8.8);
-  // doc.setTextColor(...(isPaid ? GREEN : RED));
-  // doc.text(stampDateText, 172, iTop + insH / 2 + 1 + 16, { align: "center" });
 
 
   /* ---------- payment methods (3 alag cards, beech me gap) ---------- */
   const pTop = PAY_TOP;
   const payH = 28;
-
-
 
   const GAP = 6;
   const outerL = 10;
@@ -786,21 +778,6 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
 
   const cardX = (i: number) => outerL + i * (cardW + GAP);
 
-  // ["OPTION # 01", "OPTION # 02", "OPTION # 03"].forEach((t, i) => {
-  //   const x = cardX(i);
-  //   const cx = x + cardW / 2;
-
-  //   doc.setDrawColor(...BLUE);
-  //   doc.setLineWidth(0.7);
-  //   doc.roundedRect(x, pTop, cardW, payH, 3.5, 3.5);
-
-  //   doc.setFillColor(...BLUE);
-  //   doc.roundedRect(cx - cardW / 2 + 5, pTop + 3.2, cardW - 10, 5.6, 1.2, 1.2, "F");
-  //   doc.setFont("helvetica", "bold");
-  //   doc.setFontSize(8);
-  //   doc.setTextColor(255, 255, 255);
-  //   doc.text(t, cx, pTop + 7.2, { align: "center" });
-  // });
 
   ["OPTION # 01", "OPTION # 02", "OPTION # 03"].forEach((t, i) => {
     const x = cardX(i);
@@ -883,12 +860,6 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.line(78, fTop - 1, 78, fTop + 8.5);
   doc.line(140, fTop - 1, 140, fTop + 8.5);
 
-  // phone (call) + WhatsApp numbers
-  // icoCall(doc, 15, fTop + 1.2);
-  // icoWhatsApp(doc, 15, fTop + 6.2);
-
-  // Phone icon
-  // addIcon(doc, "/pdf-assets/phone.png", 12, fTop - 2, 6);
   doc.addImage(
     "/pdf-assets/phone.png",
     "PNG",
@@ -913,12 +884,6 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.text("0312-0397239", 20, fTop + 1);
   doc.text("0340-8797239", 20, fTop + 6);
 
-  // globe
-  // doc.setDrawColor(...BLUE);
-  // doc.setLineWidth(0.5);
-  // doc.circle(84, fTop + 4, 3.2);
-  // doc.circle(84, fTop + 4, 2.2);
-  // doc.line(81.8, fTop + 4, 86.2, fTop + 4);
 
   addIcon(doc, "/pdf-assets/web.png", 80.5, fTop - 0.5, 6);
   doc.setFont("helvetica", "normal");
@@ -937,10 +902,6 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.text("A-73/22 Salman Farsi Society, Malir Halt,", 150, fTop + 2);
   doc.text("Near Salman Farsi Masjid, Karachi.", 150, fTop + 7);
 
-  /* ---------- save ---------- */
-  // const fileName = `${isPaid ? "Payment_Receipt" : "Fee_Voucher"}_${
-  //   info.receipt_no || student.student_id || "JSI"
-  // }.pdf`;
 
   const fileName = `${isPaid ? "Payment_Receipt" : "Fee_Voucher"}_${student.student_id ?? "Unknown_ID"}_${(student.student_name ?? "Unknown_Student").replace(/\s+/g, "_")}_${student.class ?? "Unknown_Class"}_JSI.pdf`;
 
