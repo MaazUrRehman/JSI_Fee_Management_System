@@ -865,7 +865,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
     4    // height
   );
 
-  // WhatsApp icon
+  // WhatsApp icon 
   doc.addImage(
     "/pdf-assets/whatsapp.pdf.png",
     "PNG",
