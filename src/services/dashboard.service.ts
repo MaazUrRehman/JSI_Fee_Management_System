@@ -40,6 +40,7 @@ const EMPTY_STATS: DashboardData = {
   incomeTrend: [],
   paymentStatus: [],
   incomeDistribution: [],
+  otherIncome: [],
   studentsByGroup: [],
   studentsByClass: [],
   studentsByShift: [],
@@ -81,6 +82,19 @@ export const isStudentActiveForMonth = (
   );
 };
 
+const isDateInMonth = (value: string | number | Date | null | undefined, month: number, year: number) => {
+  if (!value) return false;
+
+  const dateText = String(value);
+  const dateOnlyMatch = /^(\d{4})-(\d{2})/.exec(dateText);
+  if (dateOnlyMatch) {
+    return Number(dateOnlyMatch[1]) === year && Number(dateOnlyMatch[2]) === month;
+  }
+
+  const date = new Date(value);
+  return !Number.isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month - 1;
+};
+
 const matchesCurrentMonth = (
   receipt: Receipt,
   monthName: string,
@@ -120,7 +134,13 @@ export const buildDashboardData = (
     matchesCurrentMonth(receipt, currentMonth, currentYear)
   );
 
-  const currentMonthActiveStudents = students.filter((student) =>
+  const currentMonthRegisteredStudents = students.filter((student) =>
+    getStudentRegistrationMonths(student).some(
+      (entry) => entry.month === currentMonth && entry.year === currentYear
+    )
+  );
+
+  const currentMonthActiveStudents = currentMonthRegisteredStudents.filter((student) =>
     isStudentActiveForMonth(student, currentMonth, currentYear)
   );
 
@@ -196,16 +216,11 @@ export const buildDashboardData = (
 //   );
 // });
 
-const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
-  if (!receipt.paid_date) return false;
-
-  const date = new Date(receipt.paid_date);
-
-  return (
-    format(date, "MMMM") === currentMonth &&
-    date.getFullYear() === currentYear
+  const currentMonthOtherReceipts = otherReceipts.filter((receipt) =>
+    receipt.payment_status === "Paid"
+      ? isDateInMonth(receipt.paid_date, referenceDate.getMonth() + 1, currentYear)
+      : isDateInMonth(receipt.due_date, referenceDate.getMonth() + 1, currentYear)
   );
-});
 
   const totalReceiptAmountCurrentMonth = currentMonthReceipts.reduce(
     (sum, receipt) => sum + Number(receipt.total_amount || 0),
@@ -213,9 +228,48 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
   );
 
   const totalOtherReceiptAmountCurrentMonth = currentMonthOtherReceipts.reduce(
-    (sum, receipt) => sum + Number(receipt.fees || 0),
+    (sum, receipt) => receipt.payment_status === "Paid"
+      ? sum + Number(receipt.fees || 0)
+      : sum,
     0
   );
+
+  const paidCurrentMonthReceipts = currentMonthReceipts.filter(
+    (receipt) => receipt.status === "Paid"
+  );
+  const getItemizedCharges = (receipt: Receipt, matches: (detail: string) => boolean) =>
+    (receipt.additional_charges || []).reduce((sum, charge, index) => {
+      const detail = String(receipt.additional_charges_details?.[index] || "").toLowerCase();
+      return matches(detail) ? sum + (Number(charge) || 0) : sum;
+    }, 0);
+  const otherIncome = [
+    {
+      name: "Registration Fees",
+      value: paidCurrentMonthReceipts.reduce(
+        (sum, receipt) => sum + (receipt.registration_fee == null
+          ? getItemizedCharges(receipt, (detail) => detail.includes("registration"))
+          : (Number(receipt.registration_fee) || 0)),
+        0
+      ),
+    },
+    {
+      name: "Stationery / Additional Charges",
+      value: paidCurrentMonthReceipts.reduce(
+        (sum, receipt) => sum + getItemizedCharges(
+          receipt,
+          (detail) => detail.includes("stationery") || detail.includes("stationary") || detail.includes("additional charges")
+        ),
+        0
+      ),
+    },
+    {
+      name: "Late Fees",
+      value: paidCurrentMonthReceipts.reduce(
+        (sum, receipt) => sum + (Number(receipt.late_charges) || 0),
+        0
+      ),
+    },
+  ];
 
   // Calculate income distribution
   const incomeDistribution = [
@@ -242,9 +296,8 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
   ];
 
   // Calculate students by group
-  // Calculate students by group
   const studentsByGroup = Object.values(
-    students.reduce<Record<string, { group: string; students: number }>>(
+    currentMonthActiveStudents.reduce<Record<string, { group: string; students: number }>>(
       (acc, student) => {
         const key = student.student_group || "Unknown";
 
@@ -264,7 +317,7 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
 
   // Calculate students by class
   const studentsByClass = Object.values(
-    students.reduce<Record<string, { class: string; students: number }>>(
+    currentMonthActiveStudents.reduce<Record<string, { class: string; students: number }>>(
       (acc, student) => {
         const key = student.class || "Unknown";
 
@@ -284,7 +337,7 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
 
   // Calculate students by shift
   const studentsByShift = Object.values(
-    students.reduce<Record<string, { shift: string; students: number }>>(
+    currentMonthActiveStudents.reduce<Record<string, { shift: string; students: number }>>(
       (acc, student) => {
         const key = student.shift || "Unknown";
 
@@ -344,35 +397,18 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
     };
   });
 
-  // Calculate income trend for the year
-  const incomeTrend = Array.from({ length: 12 }, (_, index) => {
-    const month = format(new Date(currentYear, index, 1), "MMMM");
-
-    const expected = students
-      .filter((s) => isStudentActiveForMonth(s, month, currentYear))
-      .reduce((sum, s) => sum + Number(s.monthly_fee || 0), 0);
-
-    const collected = receipts
-      .filter(
-        (r) =>
-          matchesCurrentMonth(r, month, currentYear) &&
-          r.status === "Paid"
-      )
-      .reduce((sum, r) => sum + (Number(r.total_amount || 0) - (Number(r.remaining_amount) || 0)), 0);
-
-    return {
-      month,
-      expected,
-      collected,
-    };
-  });
+  const incomeTrend = [{
+    month: currentMonth,
+    expected: expectedMonthlyIncome,
+    collected: collectedIncome,
+  }];
   
 
   return {
     currentMonth,
     currentYear,
     students: {
-      totalStudents: students.length,
+      totalStudents: currentMonthRegisteredStudents.length,
       currentMonthActiveStudents: currentMonthActiveStudents.length,
       currentMonthPaidStudents: currentMonthPaidStudents.length,
       currentMonthUnpaidStudents: currentMonthUnpaidStudents.length,
@@ -391,10 +427,11 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
     },
     studentsList: students,
     currentMonthReceipts,
-    otherReceipts,
+    otherReceipts: currentMonthOtherReceipts,
     incomeTrend,
     paymentStatus,
     incomeDistribution,
+    otherIncome,
     studentsByGroup,
     studentsByClass,
     studentsByShift,
@@ -402,7 +439,10 @@ const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
   };
 };
 
-export const getDashboardData = async (): Promise<DashboardData> => {
+export const getDashboardData = async (
+  month: number = new Date().getMonth() + 1,
+  year: number = new Date().getFullYear()
+): Promise<DashboardData> => {
   const [studentsResult, receiptsResult, otherReceiptsResult] = await Promise.all([
     supabase.from("students").select("*"),
     supabase.from("receipts").select("*"),
@@ -413,11 +453,21 @@ export const getDashboardData = async (): Promise<DashboardData> => {
   if (receiptsResult.error) throw receiptsResult.error;
   if (otherReceiptsResult.error) throw otherReceiptsResult.error;
 
+  const today = new Date();
+  const referenceDate = today.getFullYear() === year && today.getMonth() + 1 === month
+    ? today
+    : new Date(year, month, 0);
+
   return buildDashboardData(
     (studentsResult.data || []) as Student[],
     (receiptsResult.data || []) as Receipt[],
-    (otherReceiptsResult.data || []) as OtherReceipt[]
+    (otherReceiptsResult.data || []) as OtherReceipt[],
+    referenceDate
   );
 };
 
-export const getEmptyDashboardData = (): DashboardData => EMPTY_STATS;
+export const getEmptyDashboardData = (referenceDate: Date = new Date()): DashboardData => ({
+  ...EMPTY_STATS,
+  currentMonth: format(referenceDate, "MMMM"),
+  currentYear: Number(format(referenceDate, "yyyy")),
+});

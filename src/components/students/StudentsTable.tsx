@@ -106,7 +106,7 @@ export const StudentsTable = forwardRef(({ onEdit }: { onEdit?: (student: Studen
   );
 
   return (
-    <div className="space-y-4 bg-[#EFEFEF] p-4 rounded-lg">
+    <div className="w-full min-w-0 max-w-full space-y-4 bg-[#EFEFEF] p-4 rounded-lg">
       {/* Header with Yellow Accent */}
       <div className="flex items-center gap-3 mb-4">
         <div className="w-1 h-8 bg-[#FFD700] rounded-full"></div>
@@ -161,20 +161,24 @@ export const StudentsTable = forwardRef(({ onEdit }: { onEdit?: (student: Studen
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-[#0FB3B7]/20 overflow-hidden bg-white/70 backdrop-blur-sm">
-        <Table>
+      <div className="w-full min-w-0 max-w-full rounded-lg border border-[#0FB3B7]/20 overflow-hidden bg-white/70 backdrop-blur-sm">
+        <Table className="w-full table-fixed">
           <TableHeader className="bg-[#0FB3B7]/5">
             <TableRow className="border-b border-[#0FB3B7]/10">
               {(["student_id", "student_name", "father_name", "class", "student_group", "shift", "monthly_fee", "registered_for_months", "phone", "address", "admission_date", "status"] as const).map(col => (
                 <TableHead
                   key={col}
-                  className="cursor-pointer text-[#0FB3B7] font-medium hover:text-[#0FB3B7]/80 transition-colors"
+                  className={cn(
+                    "cursor-pointer px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium hover:text-[#0FB3B7]/80 transition-colors",
+                    col === "phone" && "w-[7%]",
+                    col === "address" && "w-[12%]"
+                  )}
                   onClick={() => toggleSort(col)}
                 >
                   {col.replace("_", " ")} <SortIcon col={col} />
                 </TableHead>
               ))}
-              <TableHead className="text-right text-[#0FB3B7] font-medium">Actions</TableHead>
+              <TableHead className="w-[7%] px-1.5 text-right text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -183,17 +187,17 @@ export const StudentsTable = forwardRef(({ onEdit }: { onEdit?: (student: Studen
                 key={student.id}
                 className="hover:bg-[#0FB3B7]/5 transition-colors border-b border-[#0FB3B7]/5"
               >
-                <TableCell className="text-[#0FB3B7]/90 font-medium">{student.student_id}</TableCell>
-                <TableCell className="text-[#0FB3B7]/90">{student.student_name}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.father_name}</TableCell>
-                <TableCell className="text-[#0FB3B7]/90">{student.class}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.student_group}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.shift}</TableCell>
-                <TableCell className="text-[#0FB3B7]/90 font-medium">PKR {student.monthly_fee}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.registered_for_months}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.phone || "-"}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.address || "-"}</TableCell>
-                <TableCell className="text-[#0FB3B7]/80">{student.admission_date}</TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/90 font-medium"><span className="block truncate">{student.student_id}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/90"><span className="block truncate">{student.student_name}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/80"><span className="block truncate">{student.father_name}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/90"><span className="block truncate">{student.class}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/80"><span className="block truncate">{student.student_group}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/80"><span className="block truncate">{student.shift}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/90 font-medium"><span className="block truncate">PKR {student.monthly_fee}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/80"><span className="block truncate">{student.registered_for_months}</span></TableCell>
+                <TableCell className="w-[7%] px-1.5 text-xs text-[#0FB3B7]/80" title={student.phone || "-"}><span className="block truncate">{student.phone || "-"}</span></TableCell>
+                <TableCell className="w-[12%] px-1.5 text-xs text-[#0FB3B7]/80" title={student.address || "-"}><span className="block truncate">{student.address || "-"}</span></TableCell>
+                <TableCell className="px-1.5 text-xs text-[#0FB3B7]/80"><span className="block truncate">{student.admission_date}</span></TableCell>
                 {/* <TableCell>
                   <span className={cn(
                     "px-2 py-1 rounded-full text-xs font-medium",
@@ -205,7 +209,7 @@ export const StudentsTable = forwardRef(({ onEdit }: { onEdit?: (student: Studen
                   </span>
                 </TableCell> */}
 
-                <TableCell>
+                <TableCell className="px-1.5">
                   <button
                     onClick={async () => {
                       const newStatus = student.status === "Active" ? "Inactive" : "Active";
@@ -232,8 +236,8 @@ export const StudentsTable = forwardRef(({ onEdit }: { onEdit?: (student: Studen
                   </button>
                 </TableCell>
                 
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
+                <TableCell className="w-[7%] px-1.5 text-right">
+                  <div className="flex justify-end gap-0.5">
                     <Button
                       variant="ghost"
                       size="icon"

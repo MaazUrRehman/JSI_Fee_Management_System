@@ -33,6 +33,7 @@ const COLORS = [
 ];
 
 export default function DashboardCharts({ data }: Props) {
+  const formatPKR = (value: number) => `PKR ${Number(value).toLocaleString()}`;
   const otherReceiptsChart = [
     {
       name: "Other Receipts",
@@ -310,13 +311,41 @@ export default function DashboardCharts({ data }: Props) {
         </CardContent>
       </Card>
 
+      {/* Other Income */}
+      <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
+        <CardHeader className="border-b border-[#FFD700]/20">
+          <CardTitle className="text-[#0FB3B7] flex items-center gap-2">
+            <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
+            Other Income (Selected Month)
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="h-[350px] pt-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data.otherIncome} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
+              <XAxis dataKey="name" stroke="#0FB3B7" interval={0} />
+              <YAxis stroke="#0FB3B7" tickFormatter={formatPKR} />
+              <Tooltip
+                formatter={(value) => formatPKR(Number(value))}
+                contentStyle={{
+                  backgroundColor: 'rgba(15, 179, 183, 0.1)',
+                  border: '1px solid #0FB3B7',
+                  borderRadius: '8px'
+                }}
+              />
+              <Bar dataKey="value" name="Total Collected" fill="#0FB3B7" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Other Receipts */}
       <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
         <CardHeader className="border-b border-[#FFD700]/20">
           <CardTitle className="text-[#0FB3B7] flex items-center gap-2">
             <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
-            Other Receipts (Current Month)
+            Other Receipts (Selected Month)
           </CardTitle>
         </CardHeader>
 

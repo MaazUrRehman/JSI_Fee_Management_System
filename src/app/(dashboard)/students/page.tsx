@@ -21,8 +21,8 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div ref={formRef}>
+    <div className="w-full min-w-0 max-w-full space-y-8">
+      <div ref={formRef} className="w-full min-w-0 max-w-full">
         <StudentRegistrationForm 
           onSuccess={handleRefresh} 
           editingStudent={editingStudent} 
