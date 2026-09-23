@@ -150,7 +150,7 @@ export function StudentRegistrationForm({
   }
 
   return (
-    <div className="min-h-screen bg-[#EFEFEF] p-6">
+    <div className="min-h-screen w-full min-w-0 max-w-full bg-[#EFEFEF] p-4 sm:p-6">
       <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-4 border-l-4 border-[#FFD700] mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#0FB3B7] tracking-wide">
@@ -159,7 +159,7 @@ export function StudentRegistrationForm({
         </div>
       </div>
 
-      <Card className="w-full max-w-2xl mx-auto bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
+      <Card className="w-full min-w-0 max-w-2xl mx-auto bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
         <CardHeader className="border-b border-[#FFD700]/20">
           <div className="flex items-center gap-3">
             <div className="w-1 h-8 bg-[#FFD700] rounded-full"></div>
@@ -168,7 +168,7 @@ export function StudentRegistrationForm({
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="min-w-0 pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 gap-4">

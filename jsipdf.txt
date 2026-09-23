@@ -320,7 +320,7 @@ function stamp(
 ============================================================ */
 
 export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const isPaid = String(info.status).toLowerCase() === "paid";
   const W = 210;
 
@@ -464,7 +464,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   
   // Tagline image at the right
   doc.addImage(
-    "/pdf-assets/a_promise_of_improvement.pdf.png",
+    "/pdf-assets/a_promise_of_improvement.png",
     "PNG",
     titleLeft + totalW - 75, // X position (right side se adjust)
     36,              // Y position
@@ -857,7 +857,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.line(140, fTop - 1, 140, fTop + 8.5);
 
   doc.addImage(
-    "/pdf-assets/phone.pdf.png",
+    "/pdf-assets/phone.png",
     "PNG",
     12,
     fTop - 2,
@@ -867,7 +867,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
 
   // WhatsApp icon
   doc.addImage(
-    "/pdf-assets/whatsapp.pdf.png",
+    "/pdf-assets/whatsapp.png",
     "PNG",
     12,
     fTop + 3,
@@ -881,7 +881,7 @@ export const generateFeePDF = (student: VoucherStudent, info: FeePDFInfo) => {
   doc.text("0340-8797239", 20, fTop + 6);
 
 
-  addIcon(doc, "/pdf-assets/web.pdf.png", 80.5, fTop - 0.5, 6);
+  addIcon(doc, "/pdf-assets/web.png", 80.5, fTop - 0.5, 6);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...BLUE);

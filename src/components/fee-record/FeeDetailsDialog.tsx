@@ -131,7 +131,10 @@ export function FeeDetailsDialog({ student, open, onOpenChange }: { student: Stu
       paid_amount: r.total_amount - (r.remaining_amount || 0),
       remaining_amount: r.remaining_amount || 0,
       payment_method: r.payment_method || "N/A",
-      status: r.status
+      status: r.status,
+      issue_date: r.due_date || (r.created_at ? r.created_at.split('T')[0] : undefined),
+      paid_date: r.paid_date || undefined,
+      due_date: undefined,
     });
   };
 
@@ -139,28 +142,28 @@ export function FeeDetailsDialog({ student, open, onOpenChange }: { student: Stu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[900px] bg-white/95 backdrop-blur-sm border-[#0FB3B7]/20 shadow-2xl">
+      <DialogContent className="w-[92vw] max-w-[95vw] sm:max-w-[95vw] max-h-[90vh] gap-4 bg-white/95 p-4 sm:p-6 backdrop-blur-sm border-[#0FB3B7]/20 shadow-2xl">
         <DialogHeader className="border-b border-[#FFD700]/20 pb-4">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3 pr-8">
             <div className="w-1 h-8 bg-[#FFD700] rounded-full"></div>
-            <DialogTitle className="text-[#0FB3B7] text-xl font-bold">
+            <DialogTitle className="min-w-0 text-[#0FB3B7] text-xl font-bold">
               Fee Record - {currentStudent.student_name} ({currentStudent.student_id})
             </DialogTitle>
           </div>
         </DialogHeader>
 
-        <div className="max-h-[80vh] overflow-y-auto mt-4">
-          <div className="rounded-lg border border-[#0FB3B7]/20 overflow-hidden">
-            <Table>
+        <div className="mt-2 min-w-0 max-h-[calc(90vh-10rem)] overflow-y-auto">
+          <div className="w-full min-w-0 max-w-full rounded-lg border border-[#0FB3B7]/20">
+            <Table className="w-full table-fixed text-xs">
               <TableHeader className="bg-[#0FB3B7]/5">
                 <TableRow className="border-b border-[#0FB3B7]/10">
-                  <TableHead className="text-[#0FB3B7] font-medium">Month</TableHead>
-                  <TableHead className="text-[#0FB3B7] font-medium">Monthly Fee</TableHead>
-                  <TableHead className="text-[#0FB3B7] font-medium">Previous Balance</TableHead>
-                  <TableHead className="text-[#0FB3B7] font-medium">Remaining Amount</TableHead>
-                  <TableHead className="text-[#0FB3B7] font-medium">Total Amount</TableHead>
-                  <TableHead className="text-[#0FB3B7] font-medium">Status</TableHead>
-                  <TableHead className="text-[#0FB3B7] font-medium">Action</TableHead>
+                  <TableHead className="w-[14%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Month</TableHead>
+                  <TableHead className="w-[14%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Monthly Fee</TableHead>
+                  <TableHead className="w-[14%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Previous Balance</TableHead>
+                  <TableHead className="w-[14%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Remaining Amount</TableHead>
+                  <TableHead className="w-[14%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Total Amount</TableHead>
+                  <TableHead className="w-[12%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Status</TableHead>
+                  <TableHead className="w-[18%] px-1.5 text-xs leading-tight whitespace-normal text-[#0FB3B7] font-medium">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -181,36 +184,36 @@ export function FeeDetailsDialog({ student, open, onOpenChange }: { student: Stu
                       key={`${index}-${year}-${monthName}`}
                       className="hover:bg-[#0FB3B7]/5 transition-colors border-b border-[#0FB3B7]/5"
                     >
-                      <TableCell className="text-[#0FB3B7]/90 font-medium">
-                        {monthName} ({year})
+                      <TableCell className="px-1.5 py-2 text-[#0FB3B7]/90 font-medium">
+                        <span title={`${monthName} (${year})`} className="block truncate">{monthName} ({year})</span>
                       </TableCell>
-                      <TableCell className="text-[#0FB3B7]/80">
-                        PKR {receipt?.fee_amount || currentStudent.monthly_fee}
+                      <TableCell className="px-1.5 py-2 text-[#0FB3B7]/80">
+                        <span className="block truncate">PKR {receipt?.fee_amount || currentStudent.monthly_fee}</span>
                       </TableCell>
-                      <TableCell className="text-[#0FB3B7]/80">
-                        PKR {receipt?.previous_balance || 0}
+                      <TableCell className="px-1.5 py-2 text-[#0FB3B7]/80">
+                        <span className="block truncate">PKR {receipt?.previous_balance || 0}</span>
                       </TableCell>
-                      <TableCell className="text-[#0FB3B7]/80">
-                        PKR {receipt?.remaining_amount || 0}
+                      <TableCell className="px-1.5 py-2 text-[#0FB3B7]/80">
+                        <span className="block truncate">PKR {receipt?.remaining_amount || 0}</span>
                       </TableCell>
-                      <TableCell className="text-[#0FB3B7]/90 font-bold">
-                        PKR {receipt?.total_amount || 0}
+                      <TableCell className="px-1.5 py-2 text-[#0FB3B7]/90 font-bold">
+                        <span className="block truncate">PKR {receipt?.total_amount || 0}</span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-1.5 py-2">
                         <span className={isPaid ?
-                          "px-2 py-1 rounded-full text-xs font-medium bg-[#0FB3B7]/10 text-[#0FB3B7]" :
-                          "px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600"
+                          "inline-block max-w-full truncate rounded-full bg-[#0FB3B7]/10 px-1.5 py-1 text-xs font-medium text-[#0FB3B7]" :
+                          "inline-block max-w-full truncate rounded-full bg-red-100 px-1.5 py-1 text-xs font-medium text-red-600"
                         }>
                           {isPaid ? "Paid ✓" : "Unpaid"}
                         </span>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1 w-24">
+                      <TableCell className="px-1.5 py-2">
+                        <div className="flex w-full min-w-0 flex-col gap-1">
                           {!isPaid ? (
                             <Button
                               size="sm"
                               onClick={() => setSelectedMonth(index + 1)}
-                              className="bg-[#0FB3B7] hover:bg-[#0E9EA2] text-white transition-all duration-200 hover:shadow-md"
+                              className="h-7 w-full px-1.5 text-xs bg-[#0FB3B7] hover:bg-[#0E9EA2] text-white transition-all duration-200 hover:shadow-md"
                             >
                               Pay Fee
                             </Button>
@@ -219,7 +222,7 @@ export function FeeDetailsDialog({ student, open, onOpenChange }: { student: Stu
                               size="sm"
                               variant="outline"
                               onClick={() => receipt && handleDownloadPDF(receipt)}
-                              className="border-[#0FB3B7]/30 text-[#0FB3B7] hover:bg-[#0FB3B7]/10 hover:border-[#0FB3B7]/50 transition-all duration-200"
+                              className="h-7 w-full px-1.5 text-xs border-[#0FB3B7]/30 text-[#0FB3B7] hover:bg-[#0FB3B7]/10 hover:border-[#0FB3B7]/50 transition-all duration-200"
                             >
                               Download
                             </Button>
@@ -236,7 +239,7 @@ export function FeeDetailsDialog({ student, open, onOpenChange }: { student: Stu
                                   fetchReceipts();
                                 }
                               }}
-                              className="bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
+                              className="h-7 w-full px-1.5 text-xs bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
                             >
                               Delete
                             </Button>

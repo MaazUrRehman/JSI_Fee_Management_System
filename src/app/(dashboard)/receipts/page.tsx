@@ -45,6 +45,8 @@ function ReceiptFormContent() {
   const [previousBalance, setPreviousBalance] = useState<number>(0);
   const [discount, setDiscount] = useState<number>(0);
   const [paidAmountInput, setPaidAmountInput] = useState<number | null>(null);
+  const [paidDate, setPaidDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [issueDate, setIssueDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   const [isLoading, setIsLoading] = useState(false);
   const receiptsTableRef = useRef<any>(null);
@@ -138,6 +140,8 @@ function ReceiptFormContent() {
     setDiscount(0);
     setPaidAmountInput(null);
     setDueDate("");
+    setIssueDate(new Date().toISOString().split('T')[0]);
+    setPaidDate(new Date().toISOString().split('T')[0]);
 
     const day = new Date().getDate();
     if (day >= 1 && day <= 10) setLateFee(0);
@@ -275,14 +279,14 @@ function ReceiptFormContent() {
         payment_method: paymentMethod,
         receipt_no: `RCP-${Date.now()}`,
         status: "Paid",
-        paid_date: new Date().toISOString().split('T')[0],
+        paid_date: paidDate || null,
         additional_charges: chargesArr,
         additional_charges_details: detailsArr,
         discounts: [{ amount: discount, details: "Discount" }],
         total_discount: discount,
         previous_balance: previousBalance,
         remaining_amount: remainingAmount,
-        due_date: dueDate || null,
+        due_date: issueDate || null,
         registration_fee: registrationFee,
       } as any);
 
@@ -311,7 +315,7 @@ function ReceiptFormContent() {
   };
 
   return (
-    <div className="space-y-6 bg-[#EFEFEF] min-h-screen p-6 w-[65%]">
+    <div className="w-full min-w-0 max-w-full space-y-6 bg-[#EFEFEF] min-h-screen p-4 sm:p-6">
       <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-4 border-l-4 border-[#FFD700] mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#0FB3B7] tracking-wide">
@@ -320,15 +324,15 @@ function ReceiptFormContent() {
         </div>
       </div>
 
-      <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
+      <Card className="w-full min-w-0 max-w-full bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
         <CardHeader className="border-b border-[#FFD700]/20">
           <div className="flex items-center gap-3">
             <div className="w-1 h-6 bg-[#FFD700] rounded-full"></div>
             <CardTitle className="text-[#0FB3B7] text-lg font-bold">Create Receipt</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 pt-6">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="min-w-0 space-y-4 pt-6">
+          <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
               <Label className="text-[#0FB3B7] font-medium mb-2">Student ID</Label>
               <Select onValueChange={(v) => handleStudentSelect(v ?? "")} value={selectedStudent?.student_id || ""}>
@@ -365,11 +369,20 @@ function ReceiptFormContent() {
               />
             </div>
             <div>
+              <Label className="text-[#0FB3B7] font-medium mb-2">Issue Date</Label>
+              <Input
+                type="date"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
+              />
+            </div>
+            <div>
               <Label className="text-[#0FB3B7] font-medium mb-2">Paid Date</Label>
               <Input
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                value={paidDate}
+                onChange={(e) => setPaidDate(e.target.value)}
                 className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
               />
             </div>
@@ -470,7 +483,7 @@ function ReceiptFormContent() {
               />
             </div>
 
-            <div className="col-span-2 border-t border-[#FFD700]/20 pt-4 grid grid-cols-2 gap-4">
+            <div className="col-span-full grid grid-cols-1 gap-4 border-t border-[#FFD700]/20 pt-4 lg:grid-cols-2">
               <div>
                 <Label className="text-[#0FB3B7] font-medium mb-2">Total Amount</Label>
                 <Input
@@ -510,14 +523,6 @@ function ReceiptFormContent() {
                   <SelectItem value="Online" className="text-[#0FB3B7]">Online</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label className="text-[#0FB3B7] font-medium mb-2">Paid Date</Label>
-              <Input
-                value={isMounted ? new Date().toISOString().split('T')[0] : ""}
-                readOnly
-                className="border-[#0FB3B7]/20 bg-[#0FB3B7]/5 text-[#0FB3B7]/90"
-              />
             </div>
           </div>
 

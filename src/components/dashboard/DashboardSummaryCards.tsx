@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { DashboardData } from "@/types/dashboard";
 
 interface SummaryCardProps {
@@ -39,9 +40,24 @@ const formatCurrency = (amount: number) =>
 
 interface DashboardSummaryCardsProps {
   stats: DashboardData;
+  selectedMonth: number;
+  yearInput: string;
+  onMonthChange: (month: number) => void;
+  onYearChange: (year: string) => void;
 }
 
-export function DashboardSummaryCards({ stats }: DashboardSummaryCardsProps) {
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+export function DashboardSummaryCards({
+  stats,
+  selectedMonth,
+  yearInput,
+  onMonthChange,
+  onYearChange,
+}: DashboardSummaryCardsProps) {
   const currentPeriodLabel = `${stats.currentMonth} ${stats.currentYear}`;
 
   return (
@@ -54,9 +70,38 @@ export function DashboardSummaryCards({ stats }: DashboardSummaryCardsProps) {
           </h1>
           <p className="text-md text-[#0FB3B7]/60">{currentPeriodLabel}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse"></span>
-          <span className="text-md text-[#0FB3B7]/60">Live</span>
+        <div className="flex flex-wrap items-end justify-end gap-3">
+          <label className="flex flex-col gap-1 text-xs font-medium text-[#0FB3B7]">
+            Month
+            <select
+              value={selectedMonth}
+              onChange={(event) => onMonthChange(Number(event.target.value))}
+              className="h-9 rounded-md border border-[#0FB3B7]/20 bg-white px-2 text-sm font-normal text-[#0FB3B7] outline-none focus:border-[#0FB3B7] focus:ring-2 focus:ring-[#0FB3B7]/20"
+            >
+              {MONTHS.map((month, index) => (
+                <option key={month} value={index + 1}>{month}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-medium text-[#0FB3B7]">
+            Year
+            <Input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]{4}"
+              maxLength={4}
+              list="dashboard-year-options"
+              value={yearInput}
+              onChange={(event) => onYearChange(event.target.value.replace(/\D/g, "").slice(0, 4))}
+              aria-label="Year"
+              className="w-20 border-[#0FB3B7]/20 bg-white text-[#0FB3B7] focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20"
+            />
+            <datalist id="dashboard-year-options">
+              {Array.from({ length: 11 }, (_, index) => new Date().getFullYear() - 5 + index).map((year) => (
+                <option key={year} value={year} />
+              ))}
+            </datalist>
+          </label>
         </div>
       </div>
 

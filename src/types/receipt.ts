@@ -19,5 +19,6 @@ export interface Receipt {
   previous_balance?: number;
   remaining_amount?: number;
   due_date?: string;
+  issue_date?: string;
   registration_fee?: number;
 }

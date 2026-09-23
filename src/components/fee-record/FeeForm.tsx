@@ -58,6 +58,13 @@ export function FeeForm({ student, month, receipt, onClose }: { student: Student
   const [paymentMethod, setPaymentMethod] = useState(receipt?.payment_method || "Cash");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [issueDate, setIssueDate] = useState<string>(
+    receipt 
+      ? (receipt.issue_date || (receipt.created_at ? receipt.created_at.split('T')[0] : ""))
+      : new Date().toISOString().split('T')[0]
+  );
+  const [paidDate, setPaidDate] = useState<string>(receipt?.paid_date || "");
+
   const monthName = MONTH_NAMES[month - 1];
   const isPaid = !!receipt;
 
@@ -204,7 +211,7 @@ useEffect(() => {
         fee_amount: monthlyFee,
         late_charges: lateFee,
         total_amount: totalAmount,
-        paid_date: new Date().toISOString().split('T')[0],
+        paid_date: paidDate || new Date().toISOString().split('T')[0],
         payment_method: paymentMethod,
         receipt_no: `RCP-${Date.now()}`,
         status: "Paid",
@@ -214,9 +221,10 @@ useEffect(() => {
         total_discount: discount,
         previous_balance: previousBalance,
         remaining_amount: remainingAmount,
-        due_date: dueDate,
+        due_date: issueDate || null,
         registration_fee: registrationFee,
       } as any);
+      // Note: for paid receipts, due_date stores the Issue Date (accountant-entered).
       toast.success("Fee paid successfully");
       onClose();
     } catch (error) {
@@ -242,8 +250,11 @@ useEffect(() => {
       remaining_amount: remainingAmount,
       payment_method: paymentMethod || "N/A",
       status: isPaid ? "Paid" : "Unpaid",
-      due_date: dueDate,
-      paid_date: receipt?.paid_date || new Date().toISOString().split('T')[0]
+      // For paid receipts: due_date field stores the Issue Date (saved during handlePay).
+      // For unpaid vouchers: dueDate is the actual Due Date, issueDate is the Issue Date.
+      issue_date: isPaid ? (dueDate || issueDate) : issueDate,
+      due_date: isPaid ? undefined : dueDate,
+      paid_date: isPaid ? (receipt?.paid_date || paidDate) : paidDate
     });
   };
 
@@ -300,16 +311,40 @@ useEffect(() => {
             </div>
           </div>
 
-          <div>
-            <Label className="text-[#0FB3B7] font-medium">Due Date</Label>
-            <Input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              readOnly={isPaid}
-              className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-[#0FB3B7] font-medium">Issue Date</Label>
+              <Input
+                type="date"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                readOnly={isPaid}
+                className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
+              />
+            </div>
+            <div>
+              <Label className="text-[#0FB3B7] font-medium">Paid Date</Label>
+              <Input
+                type="date"
+                value={paidDate}
+                onChange={(e) => setPaidDate(e.target.value)}
+                readOnly={isPaid}
+                className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
+              />
+            </div>
           </div>
+
+          {!isPaid && (
+            <div>
+              <Label className="text-[#0FB3B7] font-medium">Due Date</Label>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="border-[#0FB3B7]/20 focus:border-[#0FB3B7] focus:ring-[#0FB3B7]/20 text-[#0FB3B7]"
+              />
+            </div>
+          )}
 
           {/* Breakdown Fields */}
           <div className="grid grid-cols-2 gap-4">

@@ -1006,7 +1006,7 @@ export const generateOtherReceiptPDF = (
   student: OtherReceiptStudent,
   info: OtherReceiptPDFInfo
 ) => {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
   const isPaid = String(info.status).toLowerCase() === "paid";
   const W = 210;
 
@@ -1057,7 +1057,7 @@ export const generateOtherReceiptPDF = (
 
   // tagline -> image
   doc.addImage(
-    "/pdf-assets/a_promise_of_improvement.png",
+    "/pdf-assets/a_promise_of_improvement.pdf.png",
     "PNG",
     titleRight - 75,
     36,
@@ -1391,15 +1391,15 @@ export const generateOtherReceiptPDF = (
   doc.line(78, fTop - 1, 78, fTop + 8.5);
   doc.line(140, fTop - 1, 140, fTop + 8.5);
 
-  doc.addImage("/pdf-assets/phone.png", "PNG", 12, fTop - 2, 5, 4);
-  doc.addImage("/pdf-assets/whatsapp.png", "PNG", 12, fTop + 3, 5, 4);
+  doc.addImage("/pdf-assets/phone.pdf.png", "PNG", 12, fTop - 2, 5, 4);
+  doc.addImage("/pdf-assets/whatsapp.pdf.png", "PNG", 12, fTop + 3, 5, 4);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
   doc.setTextColor(...BLUE);
   doc.text("0312-0397239", 20, fTop + 1);
   doc.text("0340-8797239", 20, fTop + 6);
 
-  addIcon(doc, "/pdf-assets/web.png", 80.5, fTop - 0.5, 6);
+  addIcon(doc, "/pdf-assets/web.pdf.png", 80.5, fTop - 0.5, 6);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...BLUE);

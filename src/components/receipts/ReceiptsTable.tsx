@@ -112,6 +112,19 @@ export const ReceiptsTable = forwardRef((props, ref) => {
     setSort(prev => ({ key, direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc" }));
   };
 
+  const SortLabel = ({ column, label }: { column: string; label: string }) => (
+    <button
+      type="button"
+      onClick={() => toggleSort(column)}
+      className="flex w-full items-center gap-0.5 truncate text-left hover:text-[#0FB3B7]/80"
+    >
+      <span className="truncate">{label}</span>
+      {sort.key === column && (sort.direction === "asc"
+        ? <ChevronUp className="h-3 w-3 shrink-0" />
+        : <ChevronDown className="h-3 w-3 shrink-0" />)}
+    </button>
+  );
+
   const downloadPDF = (r: Receipt & { student?: Student }) => {
     if (!r.student) return;
     
@@ -143,8 +156,10 @@ export const ReceiptsTable = forwardRef((props, ref) => {
       remaining_amount: r.remaining_amount || 0,
       payment_method: r.payment_method || "N/A",
       status: r.status,
-      due_date: r.due_date,
-      paid_date: r.paid_date || r.created_at
+      // due_date column stores the Issue Date for paid receipts (set during payment).
+      issue_date: r.due_date || r.created_at,
+      due_date: undefined,
+      paid_date: r.paid_date || undefined
     });
   };
 
@@ -224,102 +239,45 @@ export const ReceiptsTable = forwardRef((props, ref) => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-[#0FB3B7]/20 overflow-hidden bg-white/70 backdrop-blur-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-[#0FB3B7]/5">
-              <TableRow className="border-b border-[#0FB3B7]/10">
-                {[
-                  {key: "receipt_no", label: "Receipt No"},
-                  {key: "student.student_id", label: "Student ID"},
-                  {key: "student.student_name", label: "Student Name"},
-                  {key: "student.father_name", label: "Father Name"},
-                  {key: "student.class", label: "Class"},
-                  {key: "student.student_group", label: "Group"},
-                  {key: "student.shift", label: "Shift"},
-                  {key: "month", label: "Month"},
-                  {key: "fee_amount", label: "Fee Amount"},
-                  {key: "late_charges", label: "Late Charges"},
-                  {key: "additional_charges", label: "Additional Charges"},
-                  {key: "total_discount", label: "Discount"},
-                  {key: "total_amount", label: "Total Amount"},
-                  {key: "previous_balance", label: "Previous Balance"},
-                  {key: "remaining_amount", label: "Remaining Amount"},
-                  {key: "paid_date", label: "Paid Date"},
-                  {key: "payment_method", label: "Payment Method"},
-                  {key: "status", label: "Status"},
-                ].map(col => (
-                  <TableHead 
-                    key={col.key} 
-                    className="cursor-pointer text-[#0FB3B7] font-medium hover:text-[#0FB3B7]/80 transition-colors whitespace-nowrap"
-                    onClick={() => toggleSort(col.key)}
-                  >
-                    {col.label} 
-                    {sort.key === col.key && (sort.direction === "asc" ? 
-                      <ChevronUp className="inline h-4 w-4 ml-1" /> : 
-                      <ChevronDown className="inline h-4 w-4 ml-1" />
-                    )}
-                  </TableHead>
-                ))}
-                <TableHead className="text-[#0FB3B7] font-medium whitespace-nowrap">Actions</TableHead>
+      <div className="w-full min-w-0 max-w-full rounded-lg border border-[#0FB3B7]/20 bg-white/70 backdrop-blur-sm">
+        <Table className="w-full table-fixed text-xs">
+          <TableHeader className="bg-[#0FB3B7]/5">
+            <TableRow className="border-b border-[#0FB3B7]/10">
+              <TableHead className="w-[12%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="receipt_no" label="Receipt No" /><SortLabel column="student.student_id" label="Student ID" /></TableHead>
+              <TableHead className="w-[14%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="student.student_name" label="Student Name" /><SortLabel column="student.father_name" label="Father Name" /></TableHead>
+              <TableHead className="w-[14%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="student.class" label="Class" /><SortLabel column="student.student_group" label="Group" /></TableHead>
+              <TableHead className="w-[11%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="student.shift" label="Shift" /><SortLabel column="month" label="Month" /></TableHead>
+              <TableHead className="w-[15%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="fee_amount" label="Fee" /><SortLabel column="late_charges" label="Late" /><SortLabel column="additional_charges" label="Additional" /><SortLabel column="total_discount" label="Discount" /></TableHead>
+              <TableHead className="w-[15%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="total_amount" label="Total" /><SortLabel column="previous_balance" label="Previous" /><SortLabel column="remaining_amount" label="Remaining" /></TableHead>
+              <TableHead className="w-[11%] px-1.5 py-2 text-[#0FB3B7]"><SortLabel column="paid_date" label="Paid Date" /><SortLabel column="payment_method" label="Method" /><SortLabel column="status" label="Status" /></TableHead>
+              <TableHead className="w-[8%] px-1.5 py-2 text-right text-[#0FB3B7]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((r) => {
+              const additionalCharges = r.additional_charges?.reduce((a, b) => a + b, 0) || 0;
+              const paidDate = r.paid_date ? new Date(r.paid_date).toLocaleDateString() : "-";
+
+              return (
+                <TableRow key={r.id} className="border-b border-[#0FB3B7]/5 hover:bg-[#0FB3B7]/5 transition-colors">
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={r.receipt_no} className="truncate font-medium text-[#0FB3B7]/90">{r.receipt_no}</div><div title={r.student?.student_id} className="truncate">{r.student?.student_id || "-"}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={r.student?.student_name} className="truncate text-[#0FB3B7]/90">{r.student?.student_name || "-"}</div><div title={r.student?.father_name} className="truncate">{r.student?.father_name || "-"}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={r.student?.class} className="truncate">{r.student?.class || "-"}</div><div title={r.student?.student_group} className="truncate">{r.student?.student_group || "-"}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={r.student?.shift} className="truncate">{r.student?.shift || "-"}</div><div title={String(r.month)} className="truncate">{r.month}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={`PKR ${r.fee_amount.toLocaleString()}`} className="truncate">Fee: PKR {r.fee_amount.toLocaleString()}</div><div title={`PKR ${r.late_charges.toLocaleString()}`} className="truncate">Late: PKR {r.late_charges.toLocaleString()}</div><div title={`PKR ${additionalCharges.toLocaleString()}`} className="truncate">Add: PKR {additionalCharges.toLocaleString()}</div><div title={`PKR ${((r as any).total_discount || 0).toLocaleString()}`} className="truncate">Disc: PKR {((r as any).total_discount || 0).toLocaleString()}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={`PKR ${r.total_amount.toLocaleString()}`} className="truncate font-bold text-[#0FB3B7]">Total: PKR {r.total_amount.toLocaleString()}</div><div title={`PKR ${(r.previous_balance || 0).toLocaleString()}`} className="truncate">Prev: PKR {(r.previous_balance || 0).toLocaleString()}</div><div title={`PKR ${(r.remaining_amount || 0).toLocaleString()}`} className="truncate">Rem: PKR {(r.remaining_amount || 0).toLocaleString()}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 align-top text-[#0FB3B7]/80"><div title={paidDate} className="truncate">{paidDate}</div><div title={r.payment_method || "-"} className="truncate">{r.payment_method || "-"}</div><div title={r.status} className="truncate font-medium text-green-700">{r.status}</div></TableCell>
+                  <TableCell className="px-1.5 py-2 text-right align-middle"><Button variant="ghost" size="sm" onClick={() => downloadPDF(r)} className="h-7 px-1.5 text-xs text-[#0FB3B7] hover:bg-[#0FB3B7]/10 hover:text-[#0E9EA2]">Download</Button></TableCell>
+                </TableRow>
+              );
+            })}
+            {paginatedData.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="py-8 text-center text-[#0FB3B7]/40">No receipts found</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.map((r) => (
-                <TableRow 
-                  key={r.id} 
-                  className="hover:bg-[#0FB3B7]/5 transition-colors border-b border-[#0FB3B7]/5"
-                >
-                  <TableCell className="text-[#0FB3B7]/90 font-medium">{r.receipt_no}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">{r.student?.student_id}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/90">{r.student?.student_name}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">{r.student?.father_name}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">{r.student?.class}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">{r.student?.student_group}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">{r.student?.shift}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">{r.month}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/90 font-medium">PKR {r.fee_amount.toLocaleString()}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">PKR {r.late_charges.toLocaleString()}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">PKR { (r.additional_charges?.reduce((a,b) => a+b, 0) || 0).toLocaleString() }</TableCell>
-                  
-                  <TableCell className="text-[#0FB3B7]/80">PKR {((r as any).total_discount || 0).toLocaleString()}</TableCell>
-                  
-                  <TableCell className="text-[#0FB3B7] font-bold">PKR {r.total_amount.toLocaleString()}</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">PKR { (r.previous_balance || 0).toLocaleString() }</TableCell>
-                  <TableCell className="text-[#0FB3B7]/80">PKR { (r.remaining_amount || 0).toLocaleString() }</TableCell>
-                  <TableCell className="text-[#0FB3B7]/70">{r.paid_date ? new Date(r.paid_date).toLocaleDateString() : "-"}</TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-[#0FB3B7]/10 text-[#0FB3B7]">
-                      {r.payment_method}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                      {r.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => downloadPDF(r)}
-                      className="text-[#0FB3B7] hover:text-[#0E9EA2] hover:bg-[#0FB3B7]/10"
-                    >
-                      Download
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {paginatedData.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={19} className="text-center py-8 text-[#0FB3B7]/40">
-                    No receipts found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Pagination */}

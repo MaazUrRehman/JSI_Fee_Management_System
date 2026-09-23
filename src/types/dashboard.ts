@@ -86,6 +86,7 @@ export interface DashboardData extends DashboardStats {
   incomeTrend: IncomeTrendItem[];
   incomeDistribution: ChartItem[];
   paymentStatus: ChartItem[];
+  otherIncome: ChartItem[];
 
   // Step 4
   studentsByGroup: StudentsByGroupItem[];
