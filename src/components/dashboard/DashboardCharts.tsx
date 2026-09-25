@@ -830,7 +830,7 @@ export default function DashboardCharts({ data }: Props) {
 
       {/* Footer */}
       <div className="text-center text-xs text-[#0FB3B7]/40 border-t border-[#FFD700]/20 pt-4 mt-6 sm:text-sm sm:mt-8">
-        <p>JSI Fee Management System © 2026</p>
+        <p>Developed By Softtech Development & Creations  @2026</p>
       </div>
     </div>
   );
