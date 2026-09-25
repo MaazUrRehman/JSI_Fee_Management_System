@@ -31,6 +31,13 @@ export interface DashboardReceiptStats {
   totalOtherReceiptAmountCurrentMonth: number;
 }
 
+export interface DashboardOtherStats {
+  registrationFees: number;
+  additionalStationeryCharges: number;
+  lateFees: number;
+  discount: number;
+}
+
 export interface IncomeTrendItem {
   month: string;
   expected: number;
@@ -72,6 +79,7 @@ export interface DashboardStats {
   students: DashboardStudentStats;
   financial: DashboardFinancialStats;
   receipts: DashboardReceiptStats;
+  otherStats: DashboardOtherStats;
 }
 
 export interface DashboardData extends DashboardStats {

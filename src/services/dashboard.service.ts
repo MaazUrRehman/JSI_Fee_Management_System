@@ -34,6 +34,12 @@ const EMPTY_STATS: DashboardData = {
     totalOtherReceiptsCurrentMonth: 0,
     totalOtherReceiptAmountCurrentMonth: 0,
   },
+  otherStats: {
+    registrationFees: 0,
+    additionalStationeryCharges: 0,
+    lateFees: 0,
+    discount: 0,
+  },
   studentsList: [],
   currentMonthReceipts: [],
   otherReceipts: [],
@@ -203,18 +209,18 @@ export const buildDashboardData = (
   //   );
   // });
 
-//   const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
-//   if (!receipt.date) return false;
+  //   const currentMonthOtherReceipts = otherReceipts.filter((receipt) => {
+  //   if (!receipt.date) return false;
 
-//   const date = new Date(receipt.date);
+  //   const date = new Date(receipt.date);
 
-//   if (isNaN(date.getTime())) return false;
+  //   if (isNaN(date.getTime())) return false;
 
-//   return (
-//     format(date, "MMMM") === currentMonth &&
-//     date.getFullYear() === currentYear
-//   );
-// });
+  //   return (
+  //     format(date, "MMMM") === currentMonth &&
+  //     date.getFullYear() === currentYear
+  //   );
+  // });
 
   const currentMonthOtherReceipts = otherReceipts.filter((receipt) =>
     receipt.payment_status === "Paid"
@@ -270,6 +276,41 @@ export const buildDashboardData = (
       ),
     },
   ];
+
+  const totalRegistrationFees = paidCurrentMonthReceipts.reduce(
+    (sum, receipt) =>
+      sum +
+      (receipt.registration_fee == null
+        ? getItemizedCharges(
+          receipt,
+          (detail) => detail.includes("registration")
+        )
+        : Number(receipt.registration_fee) || 0),
+    0
+  );
+
+  const totalAdditionalStationeryCharges = paidCurrentMonthReceipts.reduce(
+    (sum, receipt) =>
+      sum +
+      getItemizedCharges(
+        receipt,
+        (detail) =>
+          detail.includes("stationery") ||
+          detail.includes("stationary") ||
+          detail.includes("additional charges")
+      ),
+    0
+  );
+
+  const totalLateFees = paidCurrentMonthReceipts.reduce(
+    (sum, receipt) => sum + (Number(receipt.late_charges) || 0),
+    0
+  );
+
+  const totalDiscount = paidCurrentMonthReceipts.reduce(
+    (sum, receipt) => sum + (Number(receipt.total_discount) || 0),
+    0
+  );
 
   // Calculate income distribution
   const incomeDistribution = [
@@ -402,7 +443,7 @@ export const buildDashboardData = (
     expected: expectedMonthlyIncome,
     collected: collectedIncome,
   }];
-  
+
 
   return {
     currentMonth,
@@ -424,6 +465,12 @@ export const buildDashboardData = (
       totalReceiptAmountCurrentMonth,
       totalOtherReceiptsCurrentMonth: currentMonthOtherReceipts.length,
       totalOtherReceiptAmountCurrentMonth,
+    },
+    otherStats: {
+      registrationFees: totalRegistrationFees,
+      additionalStationeryCharges: totalAdditionalStationeryCharges,
+      lateFees: totalLateFees,
+      discount: totalDiscount,
     },
     studentsList: students,
     currentMonthReceipts,

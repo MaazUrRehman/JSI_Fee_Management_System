@@ -160,6 +160,39 @@ export function DashboardSummaryCards({
         </div>
       </section>
 
+
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-8 bg-[#FFD700] rounded-full"></div>
+          <h2 className="text-lg font-bold text-[#0FB3B7] uppercase tracking-wider">
+            Other Statistics
+          </h2>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <SummaryCard
+            title="Registration Fees"
+            value={formatCurrency(stats.otherStats.registrationFees)}
+          />
+
+          <SummaryCard
+            title="Additional / Stationery Charges"
+            value={formatCurrency(stats.otherStats.additionalStationeryCharges)}
+          />
+
+          <SummaryCard
+            title="Late Fees"
+            value={formatCurrency(stats.otherStats.lateFees)}
+          />
+
+          <SummaryCard
+            title="Discount"
+            value={formatCurrency(stats.otherStats.discount)}
+          />
+        </div>
+      </section>
+
+
       <section className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 bg-[#FFD700] rounded-full"></div>
@@ -221,67 +254,67 @@ export function DashboardSummaryCards({
         </div> */}
 
 
-          <div className="grid gap-6 lg:grid-cols-2">
-  {/* 1st Row: JSI TUITION CENTRE (Left) | JSI COACHING CENTRE (Right) */}
-  {stats.groupStats
-    .filter((g) => g.group === "JSI TUITION CENTRE" || g.group === "JSI COACHING CENTRE")
-    .sort((a, b) => {
-      const order = ["JSI TUITION CENTRE", "JSI COACHING CENTRE"];
-      return order.indexOf(a.group) - order.indexOf(b.group);
-    })
-    .map((group) => (
-      <Card
-        key={group.group}
-        className="bg-white/50 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl"
-      >
-        <CardHeader className="border-b border-[#FFD700]/20 pb-3">
-          <CardTitle className="text-[#0FB3B7] flex items-center gap-2 text-lg">
-            <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
-            {group.group}
-          </CardTitle>
-        </CardHeader>
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* 1st Row: JSI TUITION CENTRE (Left) | JSI COACHING CENTRE (Right) */}
+          {stats.groupStats
+            .filter((g) => g.group === "JSI TUITION CENTRE" || g.group === "JSI COACHING CENTRE")
+            .sort((a, b) => {
+              const order = ["JSI TUITION CENTRE", "JSI COACHING CENTRE"];
+              return order.indexOf(a.group) - order.indexOf(b.group);
+            })
+            .map((group) => (
+              <Card
+                key={group.group}
+                className="bg-white/50 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl"
+              >
+                <CardHeader className="border-b border-[#FFD700]/20 pb-3">
+                  <CardTitle className="text-[#0FB3B7] flex items-center gap-2 text-lg">
+                    <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
+                    {group.group}
+                  </CardTitle>
+                </CardHeader>
 
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <SummaryCard title="Students" value={group.totalStudents} />
-            <SummaryCard title="Total Fees" value={formatCurrency(group.totalFees)} />
-            <SummaryCard title="Paid Fees" value={formatCurrency(group.paidFees)} />
-            <SummaryCard title="Due Fees" value={formatCurrency(group.dueFees)} />
-          </div>
-        </CardContent>
-      </Card>
-    ))}
+                <CardContent className="pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <SummaryCard title="Students" value={group.totalStudents} />
+                    <SummaryCard title="Total Fees" value={formatCurrency(group.totalFees)} />
+                    <SummaryCard title="Paid Fees" value={formatCurrency(group.paidFees)} />
+                    <SummaryCard title="Due Fees" value={formatCurrency(group.dueFees)} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
 
-  {/* 2nd Row: JSI BASIC CLASSES (Left) | JSI PRE-SCHOOLING (Right) */}
-  {stats.groupStats
-    .filter((g) => g.group === "JSI BASIC CLASSES" || g.group === "JSI PRE-SCHOOLING")
-    .sort((a, b) => {
-      const order = ["JSI BASIC CLASSES", "JSI PRE-SCHOOLING"];
-      return order.indexOf(a.group) - order.indexOf(b.group);
-    })
-    .map((group) => (
-      <Card
-        key={group.group}
-        className="bg-white/50 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl"
-      >
-        <CardHeader className="border-b border-[#FFD700]/20 pb-3">
-          <CardTitle className="text-[#0FB3B7] flex items-center gap-2 text-lg">
-            <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
-            {group.group}
-          </CardTitle>
-        </CardHeader>
+          {/* 2nd Row: JSI BASIC CLASSES (Left) | JSI PRE-SCHOOLING (Right) */}
+          {stats.groupStats
+            .filter((g) => g.group === "JSI BASIC CLASSES" || g.group === "JSI PRE-SCHOOLING")
+            .sort((a, b) => {
+              const order = ["JSI BASIC CLASSES", "JSI PRE-SCHOOLING"];
+              return order.indexOf(a.group) - order.indexOf(b.group);
+            })
+            .map((group) => (
+              <Card
+                key={group.group}
+                className="bg-white/50 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl"
+              >
+                <CardHeader className="border-b border-[#FFD700]/20 pb-3">
+                  <CardTitle className="text-[#0FB3B7] flex items-center gap-2 text-lg">
+                    <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
+                    {group.group}
+                  </CardTitle>
+                </CardHeader>
 
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <SummaryCard title="Students" value={group.totalStudents} />
-            <SummaryCard title="Total Fees" value={formatCurrency(group.totalFees)} />
-            <SummaryCard title="Paid Fees" value={formatCurrency(group.paidFees)} />
-            <SummaryCard title="Due Fees" value={formatCurrency(group.dueFees)} />
-          </div>
-        </CardContent>
-      </Card>
-    ))}
-</div>
+                <CardContent className="pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <SummaryCard title="Students" value={group.totalStudents} />
+                    <SummaryCard title="Total Fees" value={formatCurrency(group.totalFees)} />
+                    <SummaryCard title="Paid Fees" value={formatCurrency(group.paidFees)} />
+                    <SummaryCard title="Due Fees" value={formatCurrency(group.dueFees)} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+        </div>
 
       </section>
 

@@ -312,7 +312,7 @@ export default function DashboardCharts({ data }: Props) {
       </Card>
 
       {/* Other Income */}
-      <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
+      {/* <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
         <CardHeader className="border-b border-[#FFD700]/20">
           <CardTitle className="text-[#0FB3B7] flex items-center gap-2">
             <span className="inline-block w-1.5 h-6 bg-[#FFD700] rounded-full"></span>
@@ -338,7 +338,7 @@ export default function DashboardCharts({ data }: Props) {
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Other Receipts */}
       <Card className="bg-white/70 backdrop-blur-sm border-[#0FB3B7]/20 hover:border-[#0FB3B7]/40 transition-all duration-200 hover:shadow-xl">
