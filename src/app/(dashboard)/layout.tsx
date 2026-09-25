@@ -22,6 +22,41 @@
 
 
 
+// "use client";
+
+// import { useState } from "react";
+// import { Sidebar } from "@/components/layout/Sidebar";
+// import { Navbar } from "@/components/layout/Navbar";
+
+// export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+//   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+//   return (
+//     <div className="min-h-screen bg-[#EFEFEF]">
+//       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+//       <Navbar onMenuClick={() => setSidebarOpen(true)} />
+//       <main className="pt-16 lg:pl-[260px] w-full min-w-0 bg-[#EFEFEF]">
+//         {children}
+//       </main>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client";
 
 import { useState } from "react";
@@ -35,7 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-[#EFEFEF]">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <Navbar onMenuClick={() => setSidebarOpen(true)} />
-      <main className="pt-16 lg:pl-[260px] w-full min-w-0 bg-[#EFEFEF]">
+      <main className="pt-16 lg:pl-[260px] w-full min-w-0">
         {children}
       </main>
     </div>

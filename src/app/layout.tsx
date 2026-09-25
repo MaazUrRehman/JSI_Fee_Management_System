@@ -92,7 +92,9 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <LayoutWrapper>{children}</LayoutWrapper>
+        {/* <LayoutWrapper>{children}</LayoutWrapper> */}
+       
+        <>{children}</>
       </body>
     </html>
   );

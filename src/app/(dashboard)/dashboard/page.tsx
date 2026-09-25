@@ -65,7 +65,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="w-full min-w-0">
       
       {/* Summary Cards */}
       <DashboardSummaryCards
